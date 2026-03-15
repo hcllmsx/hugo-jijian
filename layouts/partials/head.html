@@ -49,6 +49,9 @@
 {{- $includes = (append $ScrollStyle $includes) }}
 {{- end }}
 
+{{- $MediumZoomStyle := (resources.Get "css/includes/medium-zoom.css") }}
+{{- $includes = (append $MediumZoomStyle $includes) }}
+
 {{- $includes_all := $includes | resources.Concat "assets/css/includes.css" }}
 
 {{- $theme_vars := (resources.Get "css/core/theme-vars.css") }}

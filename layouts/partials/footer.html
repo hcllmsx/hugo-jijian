@@ -207,3 +207,21 @@
     });
 </script>
 {{- end }}
+
+{{- if eq .Kind "page" }}
+{{- $mediumZoom := resources.Get "js/medium-zoom.min.js" | resources.Fingerprint }}
+<script src="{{ $mediumZoom.RelPermalink }}" integrity="{{ $mediumZoom.Data.Integrity }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const images = Array.from(document.querySelectorAll(".post-content img"));
+        // 过滤掉已经在 <a> 标签内部的图片（比如 figure 设置了 link 属性的情况）
+        const zoomableImages = images.filter(img => !img.closest('a'));
+        
+        mediumZoom(zoomableImages, {
+            margin: 24,
+            background: 'var(--theme)',
+            scrollOffset: 0,
+        });
+    });
+</script>
+{{- end }}

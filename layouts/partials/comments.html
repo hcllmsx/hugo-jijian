@@ -98,7 +98,9 @@ setTimeout(function() {
 }
 
 </style>
-<script src="https://giscus.app/client.js"
+{{- $giscus := resources.Get "js/giscus-client.js" | resources.Fingerprint }}
+<script src="{{ $giscus.RelPermalink }}"
+        integrity="{{ $giscus.Data.Integrity }}"
         data-repo="{{ .Site.Params.giscus.repo }}"
         data-repo-id="{{ .Site.Params.giscus.repoId }}"
         data-category="{{ .Site.Params.giscus.category }}"
