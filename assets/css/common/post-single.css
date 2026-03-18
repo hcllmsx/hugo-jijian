@@ -1,6 +1,6 @@
 .page-header,
 .post-header {
-    margin: 24px auto var(--content-gap) auto;
+    margin: 24px 0 var(--content-gap) 0;
 }
 
 .post-title {
