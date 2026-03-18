@@ -2646,36 +2646,71 @@
                 }
             });
 
-            return `const PASSWORDS_MAP = {
+            return `import { next, rewrite } from '@vercel/edge';
+
+/**
+ * 密码管理表
+ * 格式为 '路径': '对应密码'
+ * 注意：路径最后建议带上斜杠 /
+ */
+const PASSWORDS_MAP = {
 ${passwordMapContent}};
 
-export default async function middleware(request) {
-  const { pathname } = new URL(request.url);
-  
-  for (const [protectedPath, password] of Object.entries(PASSWORDS_MAP)) {
-    if (pathname === protectedPath || pathname.startsWith(protectedPath)) {
-      const authHeader = request.headers.get('Authorization');
-      
-      if (authHeader) {
-        const providedPassword = atob(authHeader.replace('Basic ', ''));
-        if (providedPassword === password) {
-          return;
-        }
-      }
-      
-      return new Response(null, {
-        status: 401,
-        headers: {
-          'WWW-Authenticate': 'Basic realm="Protected Content"'
-        }
-      });
-    }
-  }
-}
-
 export const config = {
-  matcher: ['/posts/protected/:path*'],
+  // 只拦截私密文章路径
+  matcher: '/posts/protected/:path*',
 };
+
+export default function middleware(req) {
+  const url = new URL(req.url);
+  // 标准化路径，确保匹配
+  const path = url.pathname.endsWith('/') ? url.pathname : \`\${url.pathname}/\`;
+  const cookies = req.headers.get('cookie') || '';
+  
+  // 生成该路径唯一的 Cookie 名称 (Base64 处理以支持中文路径等)
+  const safePath = btoa(unescape(encodeURIComponent(path))).replace(/[=/+]/g, '');
+  const pathToken = safePath.substring(0, 16);
+  const authCookieName = \`auth_\${pathToken}\`;
+
+  // 1. 检查是否已经获得长期授权
+  if (cookies.includes(\`\${authCookieName}=true\`)) {
+    return next();
+  }
+
+  // 2. 检查临时提交的密码
+  // 从 cookie 中获取刚刚提交待验证的密码
+  const tempPass = cookies.split(';').find(c => c.trim().startsWith('check_pw='))?.split('=')[1];
+  const decodedPass = tempPass ? decodeURIComponent(tempPass) : null;
+  const expectedPass = PASSWORDS_MAP[path];
+
+  // 如果输对了
+  if (decodedPass && expectedPass && decodedPass === expectedPass) {
+    const duration = process.env.AUTH_DURATION || '86400';
+    const response = next();
+    // 设置长期授权 cookie 并清除临时密码 cookie
+    response.headers.append('Set-Cookie', \`\${authCookieName}=true; Path=/; Max-Age=\${duration}; HttpOnly; SameSite=Lax\`);
+    response.headers.append('Set-Cookie', \`check_pw=; Path=/; Max-Age=0\`);
+    return response;
+  }
+
+  // 3. 验证失败或初次访问
+  // 只有在路径确实属于受保护列表时才拦截（或者为了安全起见也可以全部拦截匹配 matcher 的路径）
+  if (expectedPass) {
+    const passwordUrl = new URL('/password/', req.url);
+    passwordUrl.searchParams.set('next', url.pathname);
+    
+    const response = rewrite(passwordUrl);
+
+    // 如果刚才输错了密码，设置错误标识（有效期延长至 30s）
+    if (decodedPass && decodedPass !== expectedPass) {
+      response.headers.append('Set-Cookie', \`pw_error=1; Path=/; Max-Age=30; SameSite=Lax\`);
+    }
+    
+    return response;
+  }
+
+  return next();
+}
 `;
         }
 
