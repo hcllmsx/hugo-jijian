@@ -2639,7 +2639,7 @@
             let passwordMapContent = '';
 
             entries.forEach((entry, index) => {
-                const path = entry.querySelector('.password-path').value.trim();
+                const path = entry.querySelector('.password-path').value.trim().toLowerCase();
                 const password = entry.querySelector('.password-value').value.trim();
                 if (path && password) {
                     passwordMapContent += `  '${path}': '${password}',\n`;
@@ -2657,7 +2657,7 @@ export const config = {
 
 export default function middleware(req) {
   const url = new URL(req.url);
-  const decodedPath = decodeURIComponent(url.pathname);
+  const decodedPath = decodeURIComponent(url.pathname).toLowerCase();
   const path = decodedPath.endsWith('/') ? decodedPath : \`\${decodedPath}/\`;
   const cookies = req.headers.get('cookie') || '';
   
@@ -2785,7 +2785,8 @@ export default function middleware(req) {
                 value = value + '/';
             }
 
-            input.value = value;
+            // 统一转为小写，适配 Hugo 默认 URL 行为
+            input.value = value.toLowerCase();
 
             // 显示成功反馈
             const btn = input.parentElement.querySelector('.path-fix-btn');
