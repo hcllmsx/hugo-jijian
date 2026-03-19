@@ -33,8 +33,8 @@ setTimeout(function() {
   const giscusIframe = document.querySelector('iframe.giscus-frame');
   const loadingIndicator = document.querySelector('.giscus-loading');
 
-  if (loadingIndicator && loadingIndicator.style.display !== 'none' && !giscusIframe) {
-    // Loading timed out, show error message
+  if (loadingIndicator && loadingIndicator.style.display !== 'none') {
+    // Loading timed out or iframe blocked, show error message
     loadingIndicator.style.display = 'none';
     document.querySelector('.giscus-error').style.display = 'block';
   }
