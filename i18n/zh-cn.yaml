@@ -40,3 +40,15 @@
 
 - id: hover_date_format_no_time
   translation: "2006-01-02 北京时间"
+
+- id: comments_loading
+  translation: "加载评论中..."
+
+- id: comments_error_title
+  translation: "哎呀！Giscus评论模块加载失败啦～"
+
+- id: comments_error_desc
+  translation: "Giscus是基于Github Discussions的，或许当前网络无法访问Github哦！"
+
+- id: comments_retry
+  translation: "重新加载"

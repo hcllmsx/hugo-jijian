@@ -5,14 +5,14 @@
   <!-- Loading state -->
   <div class="giscus-loading">
     <div class="giscus-spinner"></div>
-    <p>加载评论中...</p>
+    <p>{{ T "comments_loading" }}</p>
   </div>
 
   <!-- Error state -->
   <div class="giscus-error" style="display: none;">
-    <p>哎呀！Giscus评论模块加载失败啦～</p>
-    <p style="font-size: 0.8em;">Giscus是基于Github Discussions的，或许当前网络无法访问Github哦！</p>
-    <button class="giscus-retry" onclick="window.location.reload()">重新加载</button>
+    <p>{{ T "comments_error_title" }}</p>
+    <p style="font-size: 0.8em;">{{ T "comments_error_desc" }}</p>
+    <button class="giscus-retry" onclick="window.location.reload()">{{ T "comments_retry" }}</button>
   </div>
 </div>
 
@@ -25,6 +25,8 @@ window.addEventListener('message', function(event) {
   if (data.giscus) {
     // Hide loading indicator when comments are loaded
     document.querySelector('.giscus-loading').style.display = 'none';
+    // Hide the container since giscus iframe is outside it
+    document.querySelector('.giscus-container').style.display = 'none';
   }
 });
 
@@ -39,6 +41,54 @@ setTimeout(function() {
     document.querySelector('.giscus-error').style.display = 'block';
   }
 }, 10000); // 10 seconds timeout
+
+// Dynamic theme switching for giscus
+function getGiscusTheme() {
+  const html = document.documentElement;
+  const theme = html.dataset.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  return theme === 'dark' ? 'dark' : 'light';
+}
+
+// Send theme to giscus iframe
+function sendThemeToGiscus(theme) {
+  const iframe = document.querySelector('iframe.giscus-frame');
+  if (iframe) {
+    iframe.contentWindow.postMessage(
+      { giscus: { setConfig: { theme: theme } } },
+      'https://giscus.app'
+    );
+  }
+}
+
+// Initial sync when giscus loads - sync immediately without animation
+let hasInitialSync = false;
+window.addEventListener('message', function(event) {
+  if (event.origin !== 'https://giscus.app') return;
+  if (event.data && event.data.giscus && event.data.giscus.resizeHeight) {
+    if (!hasInitialSync) {
+      sendThemeToGiscus(getGiscusTheme());
+      hasInitialSync = true;
+    }
+  }
+});
+
+// Watch for theme changes
+const htmlObserver = new MutationObserver(function(mutations) {
+  mutations.forEach(function(mutation) {
+    if (mutation.attributeName === 'data-theme') {
+      sendThemeToGiscus(getGiscusTheme());
+    }
+  });
+});
+
+htmlObserver.observe(document.documentElement, { attributes: true });
+
+// Also listen for system theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+  if (!document.documentElement.dataset.theme) {
+    sendThemeToGiscus(getGiscusTheme());
+  }
+});
 </script>
 
 <style>

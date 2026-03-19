@@ -41,3 +41,15 @@
 
 - id: hover_date_format_no_time
   translation: ""
+
+- id: comments_loading
+  translation: "Loading comments..."
+
+- id: comments_error_title
+  translation: "Oops! Failed to load Giscus comments."
+
+- id: comments_error_desc
+  translation: "Giscus is based on GitHub Discussions, maybe the current network cannot access GitHub!"
+
+- id: comments_retry
+  translation: "Retry"

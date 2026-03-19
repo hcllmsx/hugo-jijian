@@ -41,3 +41,15 @@
 
 - id: hover_date_format_no_time
   translation: "2006-01-02 北京時間"
+
+- id: comments_loading
+  translation: "載入評論中..."
+
+- id: comments_error_title
+  translation: "哎呀！Giscus評論模組載入失敗啦～"
+
+- id: comments_error_desc
+  translation: "Giscus是基於Github Discussions的，或許當前網絡無法訪問Github哦！"
+
+- id: comments_retry
+  translation: "重新載入"
