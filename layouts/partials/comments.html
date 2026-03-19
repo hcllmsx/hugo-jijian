@@ -7,28 +7,24 @@
     <div class="giscus-spinner"></div>
     <p>加载评论中...</p>
   </div>
-  
+
   <!-- Error state -->
   <div class="giscus-error" style="display: none;">
     <p>哎呀！Giscus评论模块加载失败啦～</p>
     <p style="font-size: 0.8em;">Giscus是基于Github Discussions的，或许当前网络无法访问Github哦！</p>
     <button class="giscus-retry" onclick="window.location.reload()">重新加载</button>
   </div>
-  
-  <!-- Comments will be inserted here by giscus -->
-  <div id="giscus-comments"></div>
 </div>
 
 <script>
 // Set up event listeners for giscus
 window.addEventListener('message', function(event) {
   if (event.origin !== 'https://giscus.app') return;
-  
+
   const data = event.data;
   if (data.giscus) {
     // Hide loading indicator when comments are loaded
     document.querySelector('.giscus-loading').style.display = 'none';
-    document.querySelector('#giscus-comments').style.display = 'block';
   }
 });
 
@@ -36,8 +32,8 @@ window.addEventListener('message', function(event) {
 setTimeout(function() {
   const giscusIframe = document.querySelector('iframe.giscus-frame');
   const loadingIndicator = document.querySelector('.giscus-loading');
-  
-  if (loadingIndicator && loadingIndicator.style.display !== 'none') {
+
+  if (loadingIndicator && loadingIndicator.style.display !== 'none' && !giscusIframe) {
     // Loading timed out, show error message
     loadingIndicator.style.display = 'none';
     document.querySelector('.giscus-error').style.display = 'block';
@@ -92,15 +88,8 @@ setTimeout(function() {
 .giscus-retry:hover {
   opacity: 0.9;
 }
-
-#giscus-comments {
-  display: none;
-}
-
 </style>
-{{- $giscus := resources.Get "js/giscus-client.js" | resources.Fingerprint }}
-<script src="{{ $giscus.RelPermalink }}"
-        integrity="{{ $giscus.Data.Integrity }}"
+<script src="https://giscus.app/client.js"
         data-repo="{{ .Site.Params.giscus.repo }}"
         data-repo-id="{{ .Site.Params.giscus.repoId }}"
         data-category="{{ .Site.Params.giscus.category }}"
