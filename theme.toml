@@ -17,7 +17,8 @@ tags = [
   "minimalist",
   "highlight.js",
   "search",
-  "pagefind"
+  "pagefind",
+  "giscus"
 ]
 features = [
   "responsive",
@@ -38,7 +39,8 @@ features = [
   "menu-location-indicator",
   "scroll-to-top",
   "search",
-  "pagefind"
+  "pagefind",
+  "giscus"
 ]
 min_version = "0.146.0"
 

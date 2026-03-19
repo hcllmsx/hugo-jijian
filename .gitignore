@@ -1,0 +1,16 @@
+# Wiki 目录（独立管理，不提交到主题仓库）
+wiki/
+
+# IDE 和编辑器
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.temp
