@@ -55,3 +55,16 @@
 
 - id: protected_summary
   translation: "这篇文章有受限访问保护，摘要已隐藏。"
+
+- id: auth_title
+  translation: "私密内容已锁定"
+- id: auth_tip
+  translation: "请输入访问密码以解锁内容"
+- id: auth_placeholder
+  translation: "输入访问密码..."
+- id: auth_button
+  translation: "解锁内容"
+- id: auth_back
+  translation: "返回上一页"
+- id: auth_error
+  translation: "❌ 密码错误，请重新输入"

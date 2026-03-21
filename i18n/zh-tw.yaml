@@ -56,3 +56,16 @@
 
 - id: protected_summary
   translation: "這篇文章有受限訪問保護，摘要已隱藏。"
+
+- id: auth_title
+  translation: "私密內容已鎖定"
+- id: auth_tip
+  translation: "請輸入訪問密碼以解鎖內容"
+- id: auth_placeholder
+  translation: "輸入訪問密碼..."
+- id: auth_button
+  translation: "解鎖內容"
+- id: auth_back
+  translation: "返回上一頁"
+- id: auth_error
+  translation: "❌ 密碼錯誤，請重新輸入"

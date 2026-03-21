@@ -4,13 +4,14 @@
 {{- $tocHover := .Param "tocHover" | default false }}
 
 <div class="post-container">
+  {{- $isEncrypted := or (in .File.Path "protected") .Params.mima .Params.password -}}
   {{- if and (.Param "ShowToc" | default true) (or (eq $tocPosition "left") (eq $tocPosition "right") (eq $tocPosition "auto")) }}
-  <aside class="toc-sidebar{{ if eq $tocPosition "auto" }} toc-auto{{ else }} {{ $tocPosition }}{{ end }}{{ if $tocHover }} toc-hover{{ end }}">
+  <aside class="toc-sidebar{{ if eq $tocPosition "auto" }} toc-auto{{ else }} {{ $tocPosition }}{{ end }}{{ if $tocHover }} toc-hover{{ end }}" {{ if $isEncrypted }}style="display:none"{{ end }}>
     {{- partial "toc.html" . }}
   </aside>
   {{- end }}
 
-  <article class="post-single" {{ if in .File.Path "protected" }}data-pagefind-ignore{{ else }}data-pagefind-body{{ end }}>
+  <article class="post-single" {{ if or (in .File.Path "protected") .Params.mima .Params.password }}data-pagefind-ignore{{ else }}data-pagefind-body{{ end }}>
     <header class="post-header">
       {{ partial "breadcrumbs.html" . }}
       <h1 class="post-title entry-hint-parent">
@@ -25,7 +26,7 @@
         {{- end }}
       </h1>
       {{- if .Description }}
-      <div class="post-description">
+      <div class="post-description" {{ if $isEncrypted }}style="display:none"{{ end }}>
         {{ .Description }}
       </div>
       {{- end }}
@@ -39,31 +40,54 @@
       {{- end }}
     </header>
 
+    {{- $password := .Params.mima | default .Params.password -}}
     {{- if .Content }}
-    <div class="post-content">
-      {{- if (.Param "enableAnchoredHeadings") }}
-      {{- partial "anchored_headings.html" .Content -}}
-      {{- else }}{{ .Content }}{{ end }}
-    </div>
-    {{- end }}
+      {{- if $password -}}
+      <div id="encrypt-container">
+        <div id="hcl-pw-raw" style="display:none">{{ $password }}</div>
+        <div id="hcl-i18n" style="display:none"
+             data-title="{{ T "auth_title" }}"
+             data-tip="{{ .Site.Params.authTip | default (T "auth_tip") }}"
+             data-placeholder="{{ T "auth_placeholder" }}"
+             data-button="{{ T "auth_button" }}"
+             data-back="{{ T "auth_back" }}"
+             data-error="{{ T "auth_error" }}"></div>
+      {{- end }}
 
-    <footer class="post-footer">
-      {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
-      <ul class="post-tags">
-        {{- range ($.GetTerms $tags) }}
-        <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+      <div class="post-content">
+        {{- if (.Param "enableAnchoredHeadings") -}}
+        {{- partial "anchored_headings.html" .Content -}}
+        {{- else }}{{ .Content }}{{ end }}
+      </div>
+
+      <footer class="post-footer">
+        {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
+        <ul class="post-tags">
+          {{- range ($.GetTerms $tags) }}
+          <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+          {{- end }}
+        </ul>
+      </footer>
+
+      {{- if $password -}}
+        <div id="hcl-content-end" style="display:none"></div>
+      </div> <!-- #encrypt-container 结束 -->
+      {{- end }}
+
+      <footer class="post-footer">
+        {{- if (.Param "ShowPostNavLinks") }}
+        {{- partial "post_nav_links.html" . }}
         {{- end }}
-      </ul>
-      {{- if (.Param "ShowPostNavLinks") }}
-      {{- partial "post_nav_links.html" . }}
-      {{- end }}
-      {{- if (and site.Params.ShowShareButtons (ne .Params.disableShare true)) }}
-      {{- partial "share_icons.html" . -}}
-      {{- end }}
-    </footer>
+        {{- if (and site.Params.ShowShareButtons (ne .Params.disableShare true)) }}
+          {{- partial "share_icons.html" . -}}
+        {{- end }}
+      </footer>
 
-    {{- if (.Param "comments") }}
-    {{- partial "comments.html" . }}
+      {{- if (.Param "comments") }}
+      <div id="comments" {{ if $password }}style="display:none" data-wait-enc="true"{{ end }}>
+        {{- partial "comments.html" . }}
+      </div>
+      {{- end }}
     {{- end }}
   </article>
 </div>

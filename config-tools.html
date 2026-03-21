@@ -864,13 +864,13 @@
                 <div class="preview-tabs">
                     <div class="preview-tab active" data-preview="hugo-yaml">hugo.yaml</div>
                     <div class="preview-tab" data-preview="package-json">package.json</div>
-                    <div class="preview-tab" data-preview="middleware-js">middleware.js</div>
+                    <div class="preview-tab" data-preview="edgeone-json">edgeone.json</div>
                 </div>
             </div>
             <div class="preview-contents">
                 <div class="preview-content active" id="previewHugoYaml">点击"预览"按钮查看当前配置</div>
                 <div class="preview-content" id="previewPackageJson">点击"预览"按钮查看当前配置</div>
-                <div class="preview-content" id="previewMiddlewareJs">点击"预览"按钮查看当前配置</div>
+                <div class="preview-content" id="previewEdgeOneJson">点击"预览"按钮查看当前配置</div>
             </div>
         </div>
         <div class="config-area">
@@ -1449,6 +1449,22 @@
                 </div>
 
                 <div class="form-section">
+                    <h2>文章加密设置</h2>
+                    <div class="form-group">
+                        <label for="authDuration">解密有效期 (秒) <span
+                                class="config-key">(params.authDuration)</span></label>
+                        <input type="number" id="authDuration" value="3600" placeholder="3600">
+                        <small class="hint">默认 3600 (1小时)，0 表示仅限本次访问（不持久化）。此设置仅对本地加密文章生效。</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="authTip">解密页面提示语 <span
+                                class="config-key">(params.authTip)</span></label>
+                        <input type="text" id="authTip" placeholder="请输入访问密码以解锁内容">
+                        <small class="hint">留空则使用系统默认多语言翻译。可自定义为“如需密码，请联系作者”等。</small>
+                    </div>
+                </div>
+
+                <div class="form-section">
                     <h2>代码高亮设置</h2>
                     <div class="form-group">
                         <label for="chromaStyle">代码高亮样式 <span
@@ -1603,45 +1619,22 @@
                     <p class="info-text">ES 模块已启用 <span class="config-key">(type: "module")</span> — 支持 import/export 语法
                     </p>
 
-                    <div class="sub-section">
-                        <h3>依赖项</h3>
                         <div class="form-group">
                             <label for="pagefindVersion">pagefind <span class="hint-text">— 全文搜索依赖</span></label>
                             <input type="text" id="pagefindVersion" value="^1.4.0" placeholder="版本号">
                         </div>
                         <div class="form-group">
                             <div class="checkbox-group">
-                                <input type="checkbox" id="depVercelEdge" onchange="toggleVercelEdgeSettings()">
-                                <label for="depVercelEdge">@vercel/edge <span class="hint-text">— 部署到 Vercel
-                                        时勾选</span></label>
+                                <input type="checkbox" id="depEdgeOne" onchange="toggleEdgeOneSettings()">
+                                <label for="depEdgeOne">部署在腾讯 EdgeOne Pages</label>
                             </div>
-                            <input type="text" id="vercelEdgeVersion" value="latest" placeholder="版本号"
-                                style="margin-top: 8px; display: none;">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-section" id="middlewareSection" style="display: none;">
-                    <h2>middleware.js（多平台部署密码保护）</h2>
-                    <p class="section-hint">配置受保护文章的路径和访问密码</p>
-                    <div id="passwordMapContainer">
-                        <div class="password-entry" data-index="0">
-                            <div class="form-group">
-                                <label>文章路径</label>
-                                <div class="path-input-wrapper">
-                                    <input type="text" class="password-path"
-                                        placeholder="/posts/protected/my-secret-post/">
-                                    <button type="button" class="path-fix-btn"
-                                        onclick="fixContentPath(this.previousElementSibling)">纠正</button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>访问密码</label>
-                                <input type="text" class="password-value" placeholder="输入密码">
+                            <div id="edgeoneSettings" style="display: none; margin-top: 8px;">
+                                <label for="hugoVersion">Hugo 版本号 (如 0.158.0)</label>
+                                <input type="text" id="hugoVersion" value="0.158.0" placeholder="0.158.0">
+                                <p class="hint-text">自动生成下载安装指令</p>
                             </div>
                         </div>
                     </div>
-                    <button type="button" class="secondary-btn" onclick="addPasswordEntry()">+ 添加密码保护</button>
                 </div>
             </div>
         </div>
@@ -1656,8 +1649,7 @@
             <button class="preview-btn" onclick="previewConfig()">预览</button>
             <button class="primary" onclick="exportHugoYaml()">导出 hugo.yaml</button>
             <button class="primary" onclick="exportPackageJson()">导出 package.json</button>
-            <button class="primary" id="exportMiddlewareBtn" onclick="exportMiddlewareJs()" style="display: none;">导出
-                middleware.js</button>
+            <button class="primary" id="exportEdgeOneBtn" onclick="exportEdgeOneJson()" style="display: none;">导出 edgeone.json</button>
             <input type="file" id="snapshotInput" accept=".ssjson,.json,.yaml,.yml,.js" style="display: none;"
                 onchange="loadSnapshot(this)">
         </div>
@@ -2503,6 +2495,8 @@
             }
 
             yaml += `  comments: ${document.getElementById('comments').checked}\n`;
+            yaml = addFieldBlock(yaml, '  ', 'authDuration', getValue('authDuration') || 3600);
+            yaml = addFieldBlock(yaml, '  ', 'authTip', getValue('authTip'));
             if (document.getElementById('comments').checked) {
                 const giscusRepo = getValue('giscusRepo');
                 const giscusRepoId = getValue('giscusRepoId');
@@ -2651,13 +2645,13 @@
             const yaml = generateYaml();
             document.getElementById('previewHugoYaml').textContent = yaml;
 
-            // 预览 middleware.js
-            const middlewareContent = generateMiddlewareJs();
-            document.getElementById('previewMiddlewareJs').textContent = middlewareContent;
-
             // 预览 package.json
             const packageContent = generatePackageJson();
             document.getElementById('previewPackageJson').textContent = packageContent;
+
+            // 预览 edgeone.json
+            const edgeoneContent = generateEdgeOneJson();
+            document.getElementById('previewEdgeOneJson').textContent = edgeoneContent;
         }
 
         // 生成 middleware.js 内容
@@ -2758,22 +2752,36 @@ export default middleware;
         // 生成 package.json 内容
         function generatePackageJson() {
             const packageData = {
-                name: document.getElementById('packageName').value,
-                version: document.getElementById('packageVersion').value,
-                type: 'module'
+                name: document.getElementById('packageName')?.value || '',
+                version: document.getElementById('packageVersion')?.value || '1.0.0',
+                type: 'module',
+                scripts: {
+                    "build": "hugo --gc --minify && node themes/jijian/assets/js/encrypt.js && npx pagefind --site public --output-path public/pagefind"
+                }
             };
 
             const dependencies = {};
-
-            if (document.getElementById('depVercelEdge').checked) {
-                dependencies['@vercel/edge'] = document.getElementById('vercelEdgeVersion').value || 'latest';
-            }
 
             dependencies['pagefind'] = document.getElementById('pagefindVersion').value || '^1.4.0';
 
             packageData.dependencies = dependencies;
 
             return JSON.stringify(packageData, null, 2);
+        }
+
+        // 生成 edgeone.json 内容
+        function generateEdgeOneJson() {
+            const version = document.getElementById('hugoVersion')?.value || '0.158.0';
+            const name = document.getElementById('packageName')?.value || '';
+            
+            const edgeoneData = {
+                "name": name,
+                "installCommand": `curl -L -o hugo.tar.gz https://github.com/gohugoio/hugo/releases/download/v${version}/hugo_extended_${version}_linux-amd64.tar.gz && tar -xzf hugo.tar.gz && npm install`,
+                "buildCommand": "npm run build",
+                "outputDirectory": "public"
+            };
+
+            return JSON.stringify(edgeoneData, null, 2);
         }
 
         // 导出 hugo.yaml
@@ -2858,41 +2866,7 @@ export default middleware;
             }, 1500);
         }
 
-        // 添加密码保护条目
-        function addPasswordEntry() {
-            const container = document.getElementById('passwordMapContainer');
-            const index = container.children.length;
-            const entry = document.createElement('div');
-            entry.className = 'password-entry';
-            entry.dataset.index = index;
-            entry.innerHTML = `
-                <div class="form-group">
-                    <label>文章路径</label>
-                    <div class="path-input-wrapper">
-                        <input type="text" class="password-path" placeholder="/posts/protected/my-secret-post/">
-                        <button type="button" class="path-fix-btn" onclick="fixContentPath(this.previousElementSibling)">纠正</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>访问密码</label>
-                    <input type="text" class="password-value" placeholder="输入密码">
-                </div>
-                <button type="button" class="remove-btn" onclick="removePasswordEntry(this)">删除</button>
-            `;
-            container.appendChild(entry);
-        }
 
-        // 删除密码保护条目
-        function removePasswordEntry(btn) {
-            btn.parentElement.remove();
-        }
-
-        // 导出 middleware.js
-        function exportMiddlewareJs() {
-            const content = generateMiddlewareJs();
-            document.getElementById('previewMiddlewareJs').textContent = content;
-            downloadFile(content, 'middleware.js');
-        }
 
         // ============= 快照功能 =============
 
@@ -2905,8 +2879,7 @@ export default middleware;
                     timestamp: new Date().toISOString()
                 },
                 hugoYaml: {},
-                packageJson: {},
-                middlewareJs: {}
+                packageJson: {}
             };
 
             // 收集 hugo.yaml 相关配置
@@ -2950,8 +2923,9 @@ export default middleware;
                 // 压缩设置
                 'disableXML', 'minifyOutput',
                 // 其他文件
-                'depVercelEdge', 'vercelEdgeVersion', 'enableFooter',
-                'pagefindVersion', 'packageName', 'packageVersion'
+                'enableFooter', 'depEdgeOne', 'hugoVersion',
+                'pagefindVersion', 'packageName', 'packageVersion',
+                'authDuration'
             ];
 
             inputIds.forEach(id => {
@@ -3019,15 +2993,6 @@ export default middleware;
                     name: entry.querySelector('.lang-name')?.value || '',
                     weight: entry.querySelector('.lang-weight')?.value || '',
                     contentDir: entry.querySelector('.lang-content-dir')?.value || ''
-                });
-            });
-
-            // 收集 middleware.js 密码配置
-            config.middlewareJs.passwords = [];
-            document.querySelectorAll('#passwordMapContainer .password-entry').forEach(entry => {
-                config.middlewareJs.passwords.push({
-                    path: entry.querySelector('.password-path')?.value || '',
-                    password: entry.querySelector('.password-value')?.value || ''
                 });
             });
 
@@ -3153,32 +3118,6 @@ export default middleware;
                 }
             }
 
-            // 恢复 middleware.js 密码配置
-            const passwordContainer = document.getElementById('passwordMapContainer');
-            if (passwordContainer && config.middlewareJs && config.middlewareJs.passwords) {
-                passwordContainer.innerHTML = '';
-                config.middlewareJs.passwords.forEach((entry, index) => {
-                    // 创建新的密码条目
-                    const newEntry = document.createElement('div');
-                    newEntry.className = 'password-entry';
-                    newEntry.dataset.index = index;
-                    newEntry.innerHTML = `
-                        <div class="form-group">
-                            <label>文章路径</label>
-                            <div class="path-input-wrapper">
-                                <input type="text" class="password-path" value="${entry.path}">
-                                <button type="button" class="path-fix-btn" onclick="fixContentPath(this.previousElementSibling)">纠正</button>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>访问密码</label>
-                            <input type="text" class="password-value" value="${entry.password}">
-                        </div>
-                        <button type="button" class="remove-btn" onclick="removePasswordEntry(this)">删除</button>
-                    `;
-                    passwordContainer.appendChild(newEntry);
-                });
-            }
 
             // 触发预览更新
             previewConfig();
@@ -3210,6 +3149,10 @@ export default middleware;
                         if (data._meta && data.generatedBy === 'jijian-config-tools') {
                             // 是快照文件
                             restoreAllConfig(data);
+                        } else if (data.name && data.installCommand) {
+                            // 是 edgeone.json
+                            parseEdgeOneJsonToConfig(content);
+                            alert('edgeone.json 导入成功！');
                         } else if (data.name || data.dependencies) {
                             // 是 package.json
                             parsePackageJsonToConfig(content);
@@ -3441,6 +3384,10 @@ export default middleware;
                             config.hugoYaml.disableThemeToggle = trimmed.includes('true');
                         } else if (trimmed.startsWith('hidemeta:')) {
                             config.hugoYaml.hidemeta = trimmed.includes('true');
+                        } else if (trimmed.startsWith('authDuration:')) {
+                            config.hugoYaml.authDuration = trimmed.substring('authDuration:'.length).trim();
+                        } else if (trimmed.startsWith('authTip:')) {
+                            config.hugoYaml.authTip = trimmed.substring('authTip:'.length).trim().replace(/^"|"$/g, '');
                         }
                     }
 
@@ -3764,85 +3711,48 @@ export default middleware;
                         const el = document.getElementById('pagefindVersion');
                         if (el) el.value = data.dependencies.pagefind;
                     }
-                    if (data.dependencies['@vercel/edge']) {
-                        const checkbox = document.getElementById('depVercelEdge');
-                        const versionInput = document.getElementById('vercelEdgeVersion');
-                        if (checkbox) {
-                            checkbox.checked = true;
-                            checkbox.dispatchEvent(new Event('change'));
-                        }
-                        if (versionInput) {
-                            versionInput.value = data.dependencies['@vercel/edge'];
-                        }
-                    }
                 }
             } catch (e) {
                 console.error('解析 package.json 失败:', e);
             }
         }
 
-        // 解析 middleware.js
-        function parseMiddlewareJsToConfig(jsContent) {
-            // 提取 PASSWORDS_MAP 中的内容
-            const mapMatch = jsContent.match(/const\s+PASSWORDS_MAP\s*=\s*\{([\s\S]*?)\};/);
-            if (!mapMatch) return;
-
-            const mapContent = mapMatch[1];
-            const entries = [];
-
-            // 匹配 'path': 'password' 格式
-            const entryRegex = /'([^']+)':\s*'([^']+)'/g;
-            let match;
-            while ((match = entryRegex.exec(mapContent)) !== null) {
-                entries.push({ path: match[1], password: match[2] });
-            }
-
-            // 更新 UI
-            const container = document.getElementById('passwordMapContainer');
-            if (container && entries.length > 0) {
-                container.innerHTML = '';
-                entries.forEach((entry, index) => {
-                    if (index === 0) {
-                        // 使用默认的第一项
-                        const firstEntry = document.createElement('div');
-                        firstEntry.className = 'password-entry';
-                        firstEntry.dataset.index = '0';
-                        firstEntry.innerHTML = `
-                            <div class="form-group">
-                                <label>文章路径</label>
-                                <div class="path-input-wrapper">
-                                    <input type="text" class="password-path" value="${entry.path}">
-                                    <button type="button" class="path-fix-btn" onclick="fixContentPath(this.previousElementSibling)">纠正</button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>访问密码</label>
-                                <input type="text" class="password-value" value="${entry.password}">
-                            </div>
-                        `;
-                        container.appendChild(firstEntry);
-                    } else {
-                        addPasswordEntry();
-                        const items = container.querySelectorAll('.password-entry');
-                        const lastItem = items[items.length - 1];
-                        lastItem.querySelector('.password-path').value = entry.path;
-                        lastItem.querySelector('.password-value').value = entry.password;
+        // 解析 edgeone.json
+        function parseEdgeOneJsonToConfig(jsonContent) {
+            try {
+                const data = JSON.parse(jsonContent);
+                // 同步项目名称
+                if (data.name) {
+                    const packageNameEl = document.getElementById('packageName');
+                    if (packageNameEl) packageNameEl.value = data.name;
+                }
+                
+                // 解析并同步版本号
+                if (data.installCommand) {
+                    const match = data.installCommand.match(/download\/v([^\/]+)\/hugo/);
+                    if (match && match[1]) {
+                        const hugoVersionEl = document.getElementById('hugoVersion');
+                        if (hugoVersionEl) hugoVersionEl.value = match[1];
+                        
+                        const depEdgeOneEl = document.getElementById('depEdgeOne');
+                        if (depEdgeOneEl) {
+                            depEdgeOneEl.checked = true;
+                            depEdgeOneEl.dispatchEvent(new Event('change'));
+                        }
                     }
-                });
+                }
+            } catch (e) {
+                console.error('解析 edgeone.json 失败:', e);
             }
         }
 
-        // 切换 Vercel Edge 相关设置显示
-        function toggleVercelEdgeSettings() {
-            const checkbox = document.getElementById('depVercelEdge');
-            const versionInput = document.getElementById('vercelEdgeVersion');
-            const middlewareSection = document.getElementById('middlewareSection');
-            const exportMiddlewareBtn = document.getElementById('exportMiddlewareBtn');
-            const isChecked = checkbox.checked;
 
-            versionInput.style.display = isChecked ? 'block' : 'none';
-            middlewareSection.style.display = isChecked ? 'block' : 'none';
-            exportMiddlewareBtn.style.display = isChecked ? 'inline-block' : 'none';
+
+        // 导出 edgeone.json
+        function exportEdgeOneJson() {
+            const content = generateEdgeOneJson();
+            document.getElementById('previewEdgeOneJson').textContent = content;
+            downloadFile(content, 'edgeone.json');
         }
 
         // 导出 package.json
@@ -3850,6 +3760,27 @@ export default middleware;
             const content = generatePackageJson();
             document.getElementById('previewPackageJson').textContent = content;
             downloadFile(content, 'package.json');
+        }
+
+        // 切换 EdgeOne 相关设置显示
+        function toggleEdgeOneSettings() {
+            const checkbox = document.getElementById('depEdgeOne');
+            const settingsDiv = document.getElementById('edgeoneSettings');
+            const exportBtn = document.getElementById('exportEdgeOneBtn');
+            const edgeoneTab = document.querySelector('.preview-tab[data-preview="edgeone-json"]');
+            const isChecked = checkbox.checked;
+
+            settingsDiv.style.display = isChecked ? 'block' : 'none';
+            exportBtn.style.display = isChecked ? 'inline-block' : 'none';
+            if (edgeoneTab) {
+                edgeoneTab.style.display = isChecked ? 'inline-block' : 'none';
+                
+                // 如果当前选中的就是 edgeone-json 标签页，且被隐藏了，则切回 hugo-yaml
+                if (!isChecked && edgeoneTab.classList.contains('active')) {
+                    const hugoTab = document.querySelector('.preview-tab[data-preview="hugo-yaml"]');
+                    if (hugoTab) hugoTab.click();
+                }
+            }
         }
 
         // 预览标签页切换
@@ -3865,8 +3796,8 @@ export default middleware;
                     tab.classList.add('active');
                     const previewId = {
                         'hugo-yaml': 'previewHugoYaml',
-                        'middleware-js': 'previewMiddlewareJs',
-                        'package-json': 'previewPackageJson'
+                        'package-json': 'previewPackageJson',
+                        'edgeone-json': 'previewEdgeOneJson'
                     }[tab.dataset.preview];
                     document.getElementById(previewId).classList.add('active');
                 });
@@ -3891,6 +3822,7 @@ export default middleware;
             // 初始化条件显示
             toggleHomeMode();
             toggleMetaSettings();
+            toggleEdgeOneSettings();
             document.getElementById('comments').dispatchEvent(new Event('change'));
             document.getElementById('showtoc').dispatchEvent(new Event('change'));
             document.getElementById('showReadingTime').dispatchEvent(new Event('change'));

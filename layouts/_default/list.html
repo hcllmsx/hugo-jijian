@@ -71,7 +71,8 @@
 {{- end }}
 {{- end }}
 
-<article class="{{ $class }}" {{ with $coverUrl }} data-cover="{{ . }}" {{ end }} {{ if in .File.Path "protected" }}data-pagefind-ignore{{ end }}>
+  {{- $isEncrypted := or (in .File.Path "protected") .Params.mima .Params.password -}}
+  <article class="{{ $class }}" {{ with $coverUrl }} data-cover="{{ . }}" {{ end }} {{ if $isEncrypted }}data-pagefind-ignore{{ end }}>
   <header class="entry-header">
     <h2 class="entry-hint-parent">
       {{- .Title }}
@@ -87,7 +88,7 @@
   </header>
   {{- if ne (.Param "hideSummary") true }}
   <div class="entry-content">
-    <p>{{ if in .File.Path "protected" }}{{ i18n "protected_summary" }}{{ else }}{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}{{ end }}</p>
+    <p>{{ if $isEncrypted }}{{ i18n "protected_summary" }}{{ else }}{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}{{ end }}</p>
   </div>
   {{- end }}
   {{- if not (.Param "hideMeta") }}

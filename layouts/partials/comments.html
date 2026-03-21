@@ -1,6 +1,7 @@
 {{- /* Comments area start */ -}}
-{{- /* Giscus Comments with loading and error handling */ -}}
+{{- $isEncrypted := or .Params.mima .Params.password -}}
 {{ if .Site.Params.giscus.repo }}
+{{ if $isEncrypted }}<template id="hcl-comments-template">{{ end }}
 <div class="giscus-container">
   <!-- Loading state -->
   <div class="giscus-loading">
@@ -24,53 +25,36 @@ window.addEventListener('message', function(event) {
   const data = event.data;
   if (data.giscus) {
     // Hide loading indicator when comments are loaded
-    document.querySelector('.giscus-loading').style.display = 'none';
-    // Hide the container since giscus iframe is outside it
-    document.querySelector('.giscus-container').style.display = 'none';
+    const loading = document.querySelector('.giscus-loading');
+    const container = document.querySelector('.giscus-container');
+    if (loading) loading.style.display = 'none';
+    if (container) container.style.display = 'none';
   }
 });
 
 // Set timeout for error handling
 setTimeout(function() {
-  const giscusIframe = document.querySelector('iframe.giscus-frame');
   const loadingIndicator = document.querySelector('.giscus-loading');
-
   if (loadingIndicator && loadingIndicator.style.display !== 'none') {
-    // Loading timed out or iframe blocked, show error message
     loadingIndicator.style.display = 'none';
-    document.querySelector('.giscus-error').style.display = 'block';
+    const errorEl = document.querySelector('.giscus-error');
+    if (errorEl) errorEl.style.display = 'block';
   }
 }, 10000); // 10 seconds timeout
 
-// Dynamic theme switching for giscus
+// Dynamic theme switching
 function getGiscusTheme() {
   const html = document.documentElement;
   const theme = html.dataset.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   return theme === 'dark' ? 'dark' : 'light';
 }
 
-// Send theme to giscus iframe
 function sendThemeToGiscus(theme) {
   const iframe = document.querySelector('iframe.giscus-frame');
   if (iframe) {
-    iframe.contentWindow.postMessage(
-      { giscus: { setConfig: { theme: theme } } },
-      'https://giscus.app'
-    );
+    iframe.contentWindow.postMessage({ giscus: { setConfig: { theme: theme } } }, 'https://giscus.app');
   }
 }
-
-// Initial sync when giscus loads - sync immediately without animation
-let hasInitialSync = false;
-window.addEventListener('message', function(event) {
-  if (event.origin !== 'https://giscus.app') return;
-  if (event.data && event.data.giscus && event.data.giscus.resizeHeight) {
-    if (!hasInitialSync) {
-      sendThemeToGiscus(getGiscusTheme());
-      hasInitialSync = true;
-    }
-  }
-});
 
 // Watch for theme changes
 const htmlObserver = new MutationObserver(function(mutations) {
@@ -80,10 +64,8 @@ const htmlObserver = new MutationObserver(function(mutations) {
     }
   });
 });
-
 htmlObserver.observe(document.documentElement, { attributes: true });
 
-// Also listen for system theme changes
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
   if (!document.documentElement.dataset.theme) {
     sendThemeToGiscus(getGiscusTheme());
@@ -92,52 +74,11 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', fun
 </script>
 
 <style>
-.giscus-container {
-  margin-top: 2rem;
-  padding: 1rem;
-  border-radius: 8px;
-  background-color: var(--card-bg-color, #f9f9f9);
-  border: 1px solid var(--border-color, #eaeaea);
-}
-
-.giscus-loading, .giscus-error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  text-align: center;
-  color: var(--text-color, #333);
-}
-
-.giscus-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--border-color, #eaeaea);
-  border-top-color: var(--accent-color, #007bff);
-  border-radius: 50%;
-  animation: giscus-spin 1s linear infinite;
-  margin-bottom: 1rem;
-}
-
-@keyframes giscus-spin {
-  to { transform: rotate(360deg); }
-}
-
-.giscus-retry {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  background-color: var(--accent-color, #007bff);
-  color: white;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.giscus-retry:hover {
-  opacity: 0.9;
-}
+.giscus-container { margin-top: 2rem; padding: 1rem; border-radius: 8px; background-color: var(--card-bg-color, #f9f9f9); border: 1px solid var(--border-color, #eaeaea); }
+.giscus-loading, .giscus-error { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; color: var(--text-color, #333); }
+.giscus-spinner { width: 40px; height: 40px; border: 4px solid var(--border-color, #eaeaea); border-top-color: var(--accent-color, #007bff); border-radius: 50%; animation: giscus-spin 1s linear infinite; margin-bottom: 1rem; }
+@keyframes giscus-spin { to { transform: rotate(360deg); } }
+.giscus-retry { margin-top: 1rem; padding: 0.5rem 1rem; border: none; border-radius: 4px; background-color: var(--accent-color, #007bff); color: white; cursor: pointer; font-size: 1rem; }
 </style>
 <script src="https://giscus.app/client.js"
         data-repo="{{ .Site.Params.giscus.repo }}"
@@ -155,6 +96,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', fun
         crossorigin="anonymous"
         async>
 </script>
-
+{{ if $isEncrypted }}</template>{{ end }}
 {{ end }}
+{{- /* Comments area end */ -}}
 {{- /* Comments area end */ -}}

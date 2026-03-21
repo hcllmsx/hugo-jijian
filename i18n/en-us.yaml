@@ -56,3 +56,16 @@
 
 - id: protected_summary
   translation: "This post is access-restricted, summary hidden."
+
+- id: auth_title
+  translation: "Private Content Locked"
+- id: auth_tip
+  translation: "Please enter the password to unlock content"
+- id: auth_placeholder
+  translation: "Enter access password..."
+- id: auth_button
+  translation: "Unlock Content"
+- id: auth_back
+  translation: "Back to Previous Page"
+- id: auth_error
+  translation: "❌ Incorrect password, please try again"
