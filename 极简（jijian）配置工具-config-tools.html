@@ -2391,6 +2391,11 @@
                 yaml += '\n';
             }
 
+            const defaultImage = getValue('defaultImage');
+            if (defaultImage) {
+                yaml += `  images: ["${defaultImage}"]\n\n`;
+            }
+
             const homeMode = document.getElementById('homeMode').value;
 
             if (homeMode === 'card' || homeMode === 'portal') {
@@ -2487,16 +2492,8 @@
             }
 
             yaml += '\n';
-            const defaultImage = getValue('defaultImage');
-            if (defaultImage) {
-                yaml += `  images: ["${defaultImage}"]\n\n`;
-            } else {
-                yaml += '\n';
-            }
 
             yaml += `  comments: ${document.getElementById('comments').checked}\n`;
-            yaml = addFieldBlock(yaml, '  ', 'authDuration', getValue('authDuration') || 3600);
-            yaml = addFieldBlock(yaml, '  ', 'authTip', getValue('authTip'));
             if (document.getElementById('comments').checked) {
                 const giscusRepo = getValue('giscusRepo');
                 const giscusRepoId = getValue('giscusRepoId');
@@ -2513,6 +2510,10 @@
                     if (giscusLang) yaml += `    lang: "${giscusLang}"\n`;
                 }
             }
+
+            yaml += '\n';
+            yaml = addFieldBlock(yaml, '  ', 'authDuration', getValue('authDuration') || 3600);
+            yaml = addFieldBlock(yaml, '  ', 'authTip', getValue('authTip'));
 
             yaml += '\n';
             yaml += `  hidemeta: ${document.getElementById('hidemeta').checked}\n`;
@@ -3266,10 +3267,14 @@ export default middleware;
             let inLabel = false;
             let inSocialIcons = false;
             let inCardMode = false;
+            let inCardModeButtons = false;
             let inPortalMode = false;
+            let inGiscus = false;
             let inFooter = false;
             let inShareButtons = false;
+            let inMainSections = false;
             let currentSocialIcon = null;
+            let currentCardButton = null;
             let cardModeEnabled = false;
             let portalModeEnabled = false;
 
@@ -3291,9 +3296,12 @@ export default middleware;
                     inLabel = false;
                     inSocialIcons = false;
                     inCardMode = false;
+                    inCardModeButtons = false;
                     inPortalMode = false;
+                    inGiscus = false;
                     inFooter = false;
                     inShareButtons = false;
+                    inMainSections = false;
                 }
 
                 if (inParams) {
@@ -3335,11 +3343,16 @@ export default middleware;
                             inCardMode = true;
                         } else if (trimmed === 'portalMode:') {
                             inPortalMode = true;
+                        } else if (trimmed === 'giscus:') {
+                            inGiscus = true;
                         } else if (trimmed === 'footer:') {
                             inFooter = true;
                         } else if (trimmed === 'ShareButtons:') {
                             inShareButtons = true;
                             config.hugoYaml.shareButtons = [];
+                        } else if (trimmed === 'mainSections:') {
+                            inMainSections = true;
+                            config.hugoYaml.mainSectionsArr = [];
                         } else if (trimmed.startsWith('comments:')) {
                             config.hugoYaml.comments = trimmed.includes('true');
                         } else if (trimmed.startsWith('showtoc:') || trimmed.startsWith('Showtoc:')) {
@@ -3445,7 +3458,9 @@ export default middleware;
 
                     // cardMode 内字段
                     if (inCardMode && indent === 4) {
-                        if (trimmed.startsWith('enabled:')) {
+                        if (trimmed === 'buttons:') {
+                            inCardModeButtons = true;
+                        } else if (trimmed.startsWith('enabled:')) {
                             cardModeEnabled = trimmed.includes('true');
                         } else if (trimmed.startsWith('title:')) {
                             config.hugoYaml.cardModeTitle = trimmed.substring('title:'.length).trim();
@@ -3459,6 +3474,22 @@ export default middleware;
                             config.hugoYaml.cardModeImageHeight = trimmed.substring('imageHeight:'.length).trim();
                         } else if (trimmed.startsWith('imageTitle:')) {
                             config.hugoYaml.cardModeImageTitle = trimmed.substring('imageTitle:'.length).trim();
+                        }
+                    }
+
+                    // cardMode buttons 内字段
+                    if (inCardMode && inCardModeButtons) {
+                        if (indent === 6 && trimmed.startsWith('- name:')) {
+                            currentCardButton = { name: trimmed.substring('- name:'.length).trim().replace(/^"|"$/g, '') };
+                            config.hugoYaml.cardButtons.push(currentCardButton);
+                        } else if (currentCardButton && indent === 8) {
+                            if (trimmed.startsWith('url:')) {
+                                currentCardButton.url = trimmed.substring('url:'.length).trim().replace(/^"|"$/g, '');
+                            }
+                        }
+                        // 离开 buttons 区块
+                        if (indent === 4 && trimmed !== 'buttons:') {
+                            inCardModeButtons = false;
                         }
                     }
 
@@ -3482,6 +3513,30 @@ export default middleware;
                             // 去除引号
                             textValue = textValue.replace(/^"|"$/g, '');
                             config.hugoYaml.footerText = textValue;
+                        }
+                    }
+
+                    // mainSections 内字段 (列表形式)
+                    if (inMainSections && indent === 4 && trimmed.startsWith('-')) {
+                        const section = trimmed.substring(1).trim();
+                        if (section) {
+                            config.hugoYaml.mainSectionsArr.push(section);
+                        }
+                    }
+
+                    // giscus 内字段
+                    if (inGiscus && indent === 4) {
+                        const cleanValue = (str, prefix) => str.substring(prefix.length).trim().replace(/^"|"$/g, '');
+                        if (trimmed.startsWith('repo:')) {
+                            config.hugoYaml.giscusRepo = cleanValue(trimmed, 'repo:');
+                        } else if (trimmed.startsWith('repoId:')) {
+                            config.hugoYaml.giscusRepoId = cleanValue(trimmed, 'repoId:');
+                        } else if (trimmed.startsWith('category:')) {
+                            config.hugoYaml.giscusCategory = cleanValue(trimmed, 'category:');
+                        } else if (trimmed.startsWith('categoryId:')) {
+                            config.hugoYaml.giscusCategoryId = cleanValue(trimmed, 'categoryId:');
+                        } else if (trimmed.startsWith('lang:')) {
+                            config.hugoYaml.giscusLang = cleanValue(trimmed, 'lang:');
                         }
                     }
                 }
@@ -3689,6 +3744,9 @@ export default middleware;
                         config.hugoYaml.buildExpired = trimmed.includes('true');
                     }
                 }
+            }
+            if (config.hugoYaml.mainSectionsArr && config.hugoYaml.mainSectionsArr.length > 0) {
+                config.hugoYaml.mainSections = config.hugoYaml.mainSectionsArr.join(', ');
             }
 
             restoreAllConfig(config);
