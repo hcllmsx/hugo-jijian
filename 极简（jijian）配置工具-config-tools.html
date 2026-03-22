@@ -1628,6 +1628,10 @@
                         <input type="text" id="pagefindVersion" value="^1.4.0" placeholder="版本号">
                     </div>
                     <div class="form-group">
+                        <label for="jsYamlVersion">js-yaml <span class="hint-text">— YAML 解析依赖（加密脚本必需）</span></label>
+                        <input type="text" id="jsYamlVersion" value="^4.1.0" placeholder="版本号">
+                    </div>
+                    <div class="form-group">
                         <div class="checkbox-group">
                             <input type="checkbox" id="depEdgeOne" onchange="toggleEdgeOneSettings()">
                             <label for="depEdgeOne">部署在腾讯 EdgeOne Pages</label>
@@ -2759,7 +2763,7 @@ export default middleware;
         function generatePackageJson() {
             const packageData = {
                 name: document.getElementById('packageName')?.value || '',
-                version: document.getElementById('packageVersion')?.value || '1.0.0',
+                version: document.getElementById('packageVersion')?.value || '',
                 type: 'module',
                 scripts: {
                     "build": "hugo --gc --minify && node themes/jijian/assets/js/encrypt.js && npx pagefind --site public --output-path public/pagefind"
@@ -2769,6 +2773,7 @@ export default middleware;
             const dependencies = {};
 
             dependencies['pagefind'] = document.getElementById('pagefindVersion').value || '^1.4.0';
+            dependencies['js-yaml'] = document.getElementById('jsYamlVersion').value || '^4.1.0';
 
             packageData.dependencies = dependencies;
 
@@ -2930,8 +2935,8 @@ export default middleware;
                 'disableXML', 'minifyOutput',
                 // 其他文件
                 'enableFooter', 'depEdgeOne', 'hugoVersion',
-                'pagefindVersion', 'packageName', 'packageVersion',
-                'authDuration'
+                'pagefindVersion', 'jsYamlVersion', 'packageName', 'packageVersion',
+                'authDuration', 'authTip'
             ];
 
             inputIds.forEach(id => {
@@ -3773,6 +3778,10 @@ export default middleware;
                     if (data.dependencies.pagefind) {
                         const el = document.getElementById('pagefindVersion');
                         if (el) el.value = data.dependencies.pagefind;
+                    }
+                    if (data.dependencies['js-yaml']) {
+                        const el = document.getElementById('jsYamlVersion');
+                        if (el) el.value = data.dependencies['js-yaml'];
                     }
                 }
             } catch (e) {
