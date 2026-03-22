@@ -82,6 +82,8 @@ params:
 - [medium-zoom](https://github.com/francoischalifour/medium-zoom) — 图片灯箱
 - [giscus](https://github.com/giscus/giscus) — 评论系统
 - [Web Crypto API](https://developer.mozilla.org/zh-CN/docs/Web/API/Web_Crypto_API) — 浏览器原生加密底层支持
+- [js-yaml](https://github.com/nodeca/js-yaml) — YAML 解析依赖（加密脚本必需）
+- [Shields.io](https://shields.io/) — 静态徽标生成服务
 
 ---
 

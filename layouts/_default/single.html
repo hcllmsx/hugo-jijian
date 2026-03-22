@@ -115,8 +115,12 @@
     let hideTimer = null;
     let currentPosition = null;
 
-    // 设置目录的垂直位置及其视差滚动效果
-    function updateTocPosition() {
+    let currentTop = 0;
+    let targetTop = 0;
+    let isInitialSet = false;
+
+    // 计算理想的目录垂直位置
+    function updateTocTarget() {
       const anchor = document.querySelector('.breadcrumbs') || document.querySelector('.post-title');
       if (anchor && tocSidebar) {
         // 锚点相对于视口（窗口）的即时位置
@@ -131,30 +135,50 @@
         // 计算视差补偿量：当滚动超过阈值时，目录会比文章滑得慢一些
         const parallaxOffset = Math.max(0, scrollY - threshold) * parallaxFactor;
         
-        // 最终 top：原本的锚点位置 + 视差偏移。
-        // 这会让目录在视觉上“飘”在面包屑下方一点点，且不会完全移出。
-        let targetTop = rect.top + parallaxOffset;
+        // 最终 target：原本的锚点位置 + 视差偏移。
+        let target = rect.top + parallaxOffset;
         
         // 保底：不要滑到导航轮廓以上（吸顶）
-        targetTop = Math.max(minTop, targetTop);
-        
-        tocSidebar.style.top = targetTop + 'px';
+        target = Math.max(minTop, target);
+        targetTop = target;
+
+        // 第一次计算时立即设置初始位置
+        if (!isInitialSet) {
+          currentTop = targetTop;
+          tocSidebar.style.top = currentTop + 'px';
+          isInitialSet = true;
+        }
       }
     }
 
-    // 初始化计算位置
-    updateTocPosition();
+    // 缓动循环：让当前位置缓慢追赶目标位置（产生平滑拖尾感）
+    function smoothScrollLoop() {
+      if (isInitialSet) {
+        const diff = targetTop - currentTop;
+        // 只要差异大于 0.1px 就持续更新
+        if (Math.abs(diff) > 0.1) {
+          // 0.08 为灵敏度系数，数值越小越缓慢、越顺滑
+          currentTop += diff * 0.08; 
+          tocSidebar.style.top = currentTop + 'px';
+        }
+      }
+      requestAnimationFrame(smoothScrollLoop);
+    }
+
+    // 初始化计算位置并开启缓动
+    updateTocTarget();
+    smoothScrollLoop();
     
-    // 监听滚动事件，实现视差效果
-    window.addEventListener('scroll', updateTocPosition);
+    // 监听滚动事件只需更新目标值，性能更佳
+    window.addEventListener('scroll', updateTocTarget);
 
     // 如果有封面图，等待图片加载完成后重新校准初始高度，防止布局偏移
     const coverImg = document.querySelector('.entry-cover img');
     if (coverImg) {
       if (coverImg.complete) {
-        updateTocPosition();
+        updateTocTarget();
       } else {
-        coverImg.addEventListener('load', updateTocPosition);
+        coverImg.addEventListener('load', updateTocTarget);
       }
     }
 

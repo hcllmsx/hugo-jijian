@@ -1,5 +1,14 @@
 {{- if not (.Param "hideFooter") }}
 <footer class="footer">
+    {{- if site.Params.footer.badges }}
+    <div class="footer-badges">
+        {{- range site.Params.footer.badges }}
+        <a href="{{ .url | default "javascript:void(0)" }}" target="_blank" rel="noopener" title="{{ .title }}">
+            <img src="{{ .badge | absURL }}" alt="{{ .title }}">
+        </a>
+        {{- end }}
+    </div>
+    {{- end }}
     {{- if not site.Params.footer.hideCopyright }}
     {{- if site.Copyright }}
     <span>&copy; {{ now.Year }} <a href="{{ "" | absLangURL }}">{{ site.Copyright }}</a></span>

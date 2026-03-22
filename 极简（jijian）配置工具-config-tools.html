@@ -968,6 +968,13 @@
                             <input type="text" id="footerText" placeholder="如备案号">
                         </div>
                         <p class="hint-text">支持 Markdown 格式，例：[备案号](https://beian.miit.gov.cn/)</p>
+                        
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label>页脚徽标 (Badges/Shields) <span class="config-key">(params.footer.badges)</span></label>
+                            <p class="hint-text">显示在页脚文字上方。推荐使用 <a href="https://shields.io/" target="_blank">Shields.io</a> 生成。</p>
+                            <div id="footerBadges"></div>
+                            <button type="button" class="add-button" onclick="addBadge()">添加徽标</button>
+                        </div>
                     </div>
                 </div>
 
@@ -1638,11 +1645,11 @@
                     </p>
 
                     <div class="form-group">
-                        <label for="pagefindVersion">pagefind <span class="hint-text">— 全文搜索依赖</span></label>
+                        <label for="pagefindVersion"><a href="https://github.com/Pagefind/pagefind/releases/latest" target="_blank" style="color: inherit; text-decoration: underline;">pagefind</a> <span class="hint-text">— 全文搜索依赖</span></label>
                         <input type="text" id="pagefindVersion" value="^1.4.0" placeholder="版本号">
                     </div>
                     <div class="form-group">
-                        <label for="jsYamlVersion">js-yaml <span class="hint-text">— YAML 解析依赖（加密脚本必需）</span></label>
+                        <label for="jsYamlVersion"><a href="https://www.npmjs.com/package/js-yaml" target="_blank" style="color: inherit; text-decoration: underline;">js-yaml</a> <span class="hint-text">— YAML 解析依赖（加密脚本必需）</span></label>
                         <input type="text" id="jsYamlVersion" value="^4.1.0" placeholder="版本号">
                     </div>
                     <div class="form-group">
@@ -2203,6 +2210,22 @@
             });
         }
 
+        function addBadge(url = '', badge = '', title = '') {
+            const footerBadgesContainer = document.getElementById('footerBadges');
+            const badgeItem = document.createElement('div');
+            badgeItem.className = 'social-icon-item';
+            badgeItem.innerHTML = `
+                <input type="text" placeholder="链接 URL (url)" value="${url}">
+                <div class="input-with-fix">
+                    <input type="text" placeholder="徽标图片地址/路径 (badge)" value="${badge}">
+                    <button type="button" class="path-fix-btn" onclick="fixStaticPath(this.previousElementSibling)">纠正</button>
+                </div>
+                <input type="text" placeholder="悬停提示 (title)" value="${title}">
+                <button class="remove-button" onclick="this.parentElement.remove()">删除</button>
+            `;
+            footerBadgesContainer.appendChild(badgeItem);
+        }
+
         function addSocialIcon() {
             const socialIcons = document.getElementById('socialIcons');
 
@@ -2371,9 +2394,32 @@
             // footer 部分
             if (document.getElementById('enableFooter').checked) {
                 const footerText = getValue('footerText');
-                if (footerText) {
+                const badgeItems = document.querySelectorAll('#footerBadges .social-icon-item');
+                const validBadges = [];
+                
+                badgeItems.forEach(item => {
+                    const inputs = item.querySelectorAll('input');
+                    const bUrl = (inputs[0]?.value || '').trim();
+                    const bBadge = (inputs[1]?.value || '').trim();
+                    const bTitle = (inputs[2]?.value || '').trim();
+                    if (bUrl || bBadge || bTitle) {
+                        validBadges.push({ url: bUrl, badge: bBadge, title: bTitle });
+                    }
+                });
+                
+                if (footerText || validBadges.length > 0) {
                     yaml += `  footer:\n`;
-                    yaml += `    text: "${footerText}"\n`;
+                    if (footerText) {
+                        yaml += `    text: "${footerText}"\n`;
+                    }
+                    if (validBadges.length > 0) {
+                        yaml += `    badges:\n`;
+                        validBadges.forEach(b => {
+                            yaml += `      - url: "${b.url}"\n`;
+                            yaml += `        badge: "${b.badge}"\n`;
+                            yaml += `        title: "${b.title}"\n`;
+                        });
+                    }
                 }
             }
 
@@ -3021,6 +3067,17 @@ export default middleware;
                 });
             });
 
+            // 收集页脚徽标
+            config.hugoYaml.footerBadges = [];
+            document.querySelectorAll('#footerBadges .social-icon-item').forEach(item => {
+                const inputs = item.querySelectorAll('input');
+                config.hugoYaml.footerBadges.push({
+                    url: inputs[0]?.value || '',
+                    badge: inputs[1]?.value || '',
+                    title: inputs[2]?.value || ''
+                });
+            });
+
             // 收集语言配置
             config.hugoYaml.languages = [];
             document.querySelectorAll('#languagesContainer .language-entry').forEach(entry => {
@@ -3152,6 +3209,15 @@ export default middleware;
                 if (footerTextEl) {
                     footerTextEl.value = config.hugoYaml.footerText;
                 }
+            }
+
+            // 恢复页脚徽标
+            const footerBadgesContainer = document.getElementById('footerBadges');
+            if (footerBadgesContainer && config.hugoYaml.footerBadges) {
+                footerBadgesContainer.innerHTML = '';
+                config.hugoYaml.footerBadges.forEach(badge => {
+                    addBadge(badge.url, badge.badge, badge.title);
+                });
             }
 
 
@@ -3306,12 +3372,14 @@ export default middleware;
             let inPortalMode = false;
             let inGiscus = false;
             let inFooter = false;
+            let inFooterBadges = false;
             let inShareButtons = false;
             let inMainSections = false;
             let inCode = false;
             let inCover = false;
             let currentSocialIcon = null;
             let currentCardButton = null;
+            let currentBadge = null;
             let cardModeEnabled = false;
             let portalModeEnabled = false;
 
@@ -3552,12 +3620,28 @@ export default middleware;
                     }
 
                     // footer 内字段
-                    if (inFooter && indent === 4) {
-                        if (trimmed.startsWith('text:')) {
+                    if (inFooter) {
+                        if (indent === 4 && trimmed.startsWith('text:')) {
                             let textValue = trimmed.substring('text:'.length).trim();
                             // 去除引号
                             textValue = textValue.replace(/^"|"$/g, '');
                             config.hugoYaml.footerText = textValue;
+                        } else if (indent === 4 && trimmed === 'badges:') {
+                            config.hugoYaml.footerBadges = [];
+                            inFooterBadges = true;
+                        } else if (inFooterBadges) {
+                            if (indent === 4 && trimmed !== 'badges:') {
+                                inFooterBadges = false;
+                            } else if (indent === 6 && trimmed.startsWith('- url:')) {
+                                currentBadge = { url: trimmed.substring('- url:'.length).trim().replace(/^"|"$/g, '') };
+                                config.hugoYaml.footerBadges.push(currentBadge);
+                            } else if (currentBadge && indent === 8) {
+                                if (trimmed.startsWith('badge:')) {
+                                    currentBadge.badge = trimmed.substring('badge:'.length).trim().replace(/^"|"$/g, '');
+                                } else if (trimmed.startsWith('title:')) {
+                                    currentBadge.title = trimmed.substring('title:'.length).trim().replace(/^"|"$/g, '');
+                                }
+                            }
                         }
                     }
 

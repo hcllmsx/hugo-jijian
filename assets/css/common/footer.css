@@ -14,6 +14,31 @@
     box-sizing: border-box;
 }
 
+.footer-badges {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.footer-badges a {
+    border: none !important;
+    display: flex;
+    transition: transform 0.2s ease-in-out;
+}
+
+.footer-badges a:hover {
+    transform: translateY(-2px);
+    border: none !important;
+}
+
+.footer-badges img {
+    height: 20px;
+    width: auto;
+}
+
 .footer span {
     margin-inline-start: 1px;
     margin-inline-end: 1px;
