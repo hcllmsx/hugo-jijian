@@ -4,16 +4,16 @@
     <div class="footer-badges">
         {{- range site.Params.footer.badges }}
         <a href="{{ .url | default "javascript:void(0)" }}" target="_blank" rel="noopener" title="{{ .title }}">
-            <img src="{{ .badge | absURL }}" alt="{{ .title }}">
+            <img src="{{ .badge | relURL }}" alt="{{ .title }}">
         </a>
         {{- end }}
     </div>
     {{- end }}
     {{- if not site.Params.footer.hideCopyright }}
     {{- if site.Copyright }}
-    <span>&copy; {{ now.Year }} <a href="{{ "" | absLangURL }}">{{ site.Copyright }}</a></span>
+    <span>&copy; {{ now.Year }} <a href="{{ "" | relLangURL }}">{{ site.Copyright }}</a></span>
     {{- else }}
-    <span>&copy; {{ now.Year }} <a href="{{ "" | absLangURL }}">{{ site.Title }}</a></span>
+    <span>&copy; {{ now.Year }} <a href="{{ "" | relLangURL }}">{{ site.Title }}</a></span>
     {{- end }}
     {{- print " · "}}
     {{- end }}

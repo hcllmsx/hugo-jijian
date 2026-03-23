@@ -3,7 +3,7 @@
         <div class="logo">
             {{- $label_text := (site.Params.label.text | default site.Title) }}
             {{- if site.Title }}
-            <a href="{{ "" | absLangURL }}" accesskey="h" title="{{ $label_text }} (Alt + H)">
+            <a href="{{ "" | relLangURL }}" accesskey="h" title="{{ $label_text }} (Alt + H)">
                 {{- if site.Params.label.icon }}
                 {{- $img := resources.Get site.Params.label.icon }}
                 {{- if $img }}
@@ -19,10 +19,10 @@
                             {{- $img = $img.Resize "x30" }}
                         {{- end }}
                     {{- end }}
-                    <img src="{{ $img.Permalink }}" alt="" aria-label="logo"
+                    <img src="{{ $img.RelPermalink }}" alt="" aria-label="logo"
                         height="{{- site.Params.label.iconHeight | default "30" -}}">
                 {{- else }}
-                <img src="{{- site.Params.label.icon | absURL -}}" alt="" aria-label="logo"
+                <img src="{{- site.Params.label.icon | relURL -}}" alt="" aria-label="logo"
                     height="{{- site.Params.label.iconHeight | default "30" -}}">
                 {{- end -}}
                 {{- else if hasPrefix site.Params.label.iconSVG "<svg" }}
@@ -64,7 +64,7 @@
                         {{- range . -}}
                         {{- if ne $lang .Lang }}
                         <li>
-                            <a href="{{- .Permalink -}}" title="{{ .Language.Params.languageAltTitle | default (.Language.LanguageName | emojify) | default (.Lang | title) }}"
+                            <a href="{{- .RelPermalink -}}" title="{{ .Language.Params.languageAltTitle | default (.Language.LanguageName | emojify) | default (.Lang | title) }}"
                                 aria-label="{{ .Language.LanguageName | default (.Lang | title) }}">
                                 {{- if (and site.Params.displayFullLangName (.Language.LanguageName)) }}
                                 {{- .Language.LanguageName | emojify -}}
@@ -93,12 +93,12 @@
         {{- $currentPage := . }}
         <ul id="menu">
             {{- range site.Menus.main }}
-            {{- $menu_item_url := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL) ) | absLangURL }}
-            {{- $page_url:= $currentPage.Permalink | absLangURL }}
+            {{- $menu_item_url := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL) ) | relLangURL }}
+            {{- $page_url:= $currentPage.RelPermalink | relLangURL }}
             {{- $is_search := eq (site.GetPage .KeyName).Layout `search` }}
             {{- $has_children := gt (len .Children) 0 }}
             <li class="menu-item{{ if $has_children }} has-children{{ end }}">
-                <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }} {{- cond $is_search (" (Alt + /)" | safeHTMLAttr) ("" | safeHTMLAttr ) }}"
+                <a href="{{ .URL | relLangURL }}" title="{{ .Title | default .Name }} {{- cond $is_search (" (Alt + /)" | safeHTMLAttr) ("" | safeHTMLAttr ) }}"
                 {{- cond $is_search (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr ) }}
                 {{- cond (findRE "://" .URL) (" target='_blank' rel='noopener noreferrer'" | safeHTMLAttr) ("" | safeHTMLAttr ) }}>
                     <span {{- if eq $menu_item_url $page_url }} class="active" {{- end }}>
@@ -122,9 +122,9 @@
                 {{- if gt (len .Children) 0 }}
                 <ul class="submenu">
                     {{- range .Children }}
-                    {{- $submenu_item_url := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL) ) | absLangURL }}
+                    {{- $submenu_item_url := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL) ) | relLangURL }}
                     <li class="submenu-item">
-                        <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }}"
+                        <a href="{{ .URL | relLangURL }}" title="{{ .Title | default .Name }}"
                         {{- cond (findRE "://" .URL) (" target='_blank' rel='noopener noreferrer'" | safeHTMLAttr) ("" | safeHTMLAttr ) }}>
                             <span {{- if eq $submenu_item_url $page_url }} class="active" {{- end }}>
                                 {{- .Pre }}

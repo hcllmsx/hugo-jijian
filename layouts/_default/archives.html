@@ -54,7 +54,7 @@
     <div class="archive-posts">
       {{- range .Pages }}
       {{- if eq .Kind "page" }}
-      {{- $coverUrl := .Params.cover.image | default site.Params.defaultImage | absURL }}
+      {{- $coverUrl := .Params.cover.image | default site.Params.defaultImage | relURL }}
       {{- if not $coverUrl }}{{ $coverUrl = "" }}{{ end }}
       <div class="archive-entry" {{ if and $coverUrl (not .Params.cover.hidden) }} data-cover="{{ $coverUrl }}" {{ end }}>
         <h3 class="archive-entry-title entry-hint-parent">
@@ -71,7 +71,7 @@
         <div class="archive-meta">
           {{- partial "post_meta.html" (dict "page" . "is_list" true) -}}
         </div>
-        <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .Permalink }}"></a>
+        <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .RelPermalink }}"></a>
       </div>
       {{- end }}
       {{- end }}
