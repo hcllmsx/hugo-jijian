@@ -39,10 +39,16 @@
 {{- end }}
 
 {{- $pages := union .RegularPages .Sections }}
+{{- if eq .Data.Plural "categories" }}
+{{- $pages = $pages.ByDate }}
+{{- else }}
+{{- $pages = where $pages "Params.hiddenInList" "ne" true }}
+{{- end }}
 
 {{- if .IsHome }}
 {{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}
-{{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true" }}
+{{- $pages = where $pages "Params.hiddenInHomeList" "ne" true }}
+{{- $pages = where $pages "Params.hiddenInList" "ne" true }}
 {{- end }}
 
 {{- $paginator := .Paginate $pages }}
@@ -92,7 +98,7 @@
     {{- partial "post_meta.html" (dict "page" . "is_list" true) -}}
   </footer>
   {{- end }}
-  <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .RelPermalink }}"></a>
+  <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ if and (ne $.Kind "term") (ne $.Kind "taxonomy") }}{{ .Params.link | default .RelPermalink }}{{ else }}{{ .RelPermalink }}{{ end }}"></a>
 </article>
 {{- end }}
 
