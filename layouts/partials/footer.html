@@ -76,17 +76,23 @@
         }
     }
 
-    // 页脚徽标横向滚动提示 (移动端)
+    // 页脚徽标横向滚动提示 (移动端，每4小时仅限一次且在可见时触发)
     window.addEventListener('load', () => {
         const badges = document.querySelector('.footer-badges');
         if (badges && window.innerWidth <= 768) {
+            // 1. 检查距离上次触发是否已超过 4 小时 (4 * 60 * 60 * 1000 ms)
+            const now = Date.now();
+            const fourHours = 4 * 60 * 60 * 1000;
+            const lastTime = localStorage.getItem('badge-hint-last-time');
+            
+            if (lastTime && (now - parseInt(lastTime, 10)) < fourHours) return;
+
             const slowScroll = (target, duration) => {
                 const start = badges.scrollLeft;
                 const startTime = performance.now();
                 const animate = (currentTime) => {
                     const elapsed = currentTime - startTime;
                     const progress = Math.min(elapsed / duration, 1);
-                    // 使用 easeInOutQuad 缓动函数
                     const ease = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
                     badges.scrollLeft = start + (target - start) * ease;
                     if (progress < 1) requestAnimationFrame(animate);
@@ -94,14 +100,26 @@
                 requestAnimationFrame(animate);
             };
 
-            setTimeout(() => {
-                if (badges.scrollWidth > badges.clientWidth) {
-                    // 滑出过程：800ms
-                    slowScroll(40, 800);
-                    // 逗留一会再弹回：1400ms 后开始弹回，弹回过程 800ms
-                    setTimeout(() => slowScroll(0, 800), 1400);
-                }
-            }, 1000);
+            // 2. 使用相交观察器，确保只有在用户“真正看到”徽标时才开始动画
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // 如果徽标确实发生了溢出，才执行动画
+                        if (badges.scrollWidth > badges.clientWidth) {
+                            setTimeout(() => {
+                                slowScroll(40, 800);
+                                setTimeout(() => slowScroll(0, 800), 1400);
+                            }, 400);
+                            
+                            // 3. 标记触发时间戳
+                            localStorage.setItem('badge-hint-last-time', Date.now().toString());
+                            observer.unobserve(badges);
+                        }
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            observer.observe(badges);
         }
     });
 
