@@ -21,8 +21,10 @@
     max-height: 220px;
     object-fit: cover;
     display: block;
-    aspect-ratio: 32 / 9; /* Ultra-wide cinematic / Panoramic ratio */
-    border-radius: 0; /* Override global border-radius from post-entry.css */
+    aspect-ratio: 32 / 9;
+    /* Ultra-wide cinematic / Panoramic ratio */
+    border-radius: 0;
+    /* Override global border-radius from post-entry.css */
     transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
@@ -318,7 +320,8 @@
 
 .toc-sidebar {
     position: fixed;
-    top: 0; /* JS will precisely control the position */
+    top: 80px;
+    /* JS will precisely control the position; 80px is a safe default near nav height */
     min-width: 150px;
     max-width: 300px;
     width: auto;
@@ -329,11 +332,13 @@
 }
 
 .toc-sidebar.left {
+    right: auto;
     left: calc((100vw - var(--main-width)) / 2 - 25px);
     transform: translateX(-100%);
 }
 
 .toc-sidebar.right {
+    left: auto;
     right: calc((100vw - var(--main-width)) / 2 - 25px);
     transform: translateX(100%);
 }
@@ -363,6 +368,7 @@
     font-weight: 500;
     font-size: 16px;
     margin-bottom: 10px;
+    min-width: 120px;
 }
 
 .post-content details summary {
@@ -565,4 +571,29 @@ h1>a>svg {
 img.in-text {
     display: inline;
     margin: auto;
+}
+
+/* vertical shortcode */
+.vertical-wrap {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.vertical-content {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    line-height: 1.5;
+    letter-spacing: 0.2em;
+    max-height: 70vh;
+    overflow-x: auto;
+    padding: 1rem 0;
+}
+
+.vertical-content em {
+    font-size: 0.85em;
+}
+
+.vertical-content strong {
+    font-size: 1.3em;
 }

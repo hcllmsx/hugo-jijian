@@ -42,6 +42,9 @@
 - id: hover_date_format_no_time
   translation: ""
 
+- id: last_mod
+  translation: "Last updated"
+
 - id: comments_loading
   translation: "Loading comments..."
 

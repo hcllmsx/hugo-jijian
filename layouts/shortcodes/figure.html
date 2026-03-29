@@ -11,6 +11,8 @@
          {{- end -}}
          {{- with .Get "width" }} width="{{ . }}"{{ end -}}
          {{- with .Get "height" }} height="{{ . }}"{{ end -}}
+         {{- with .Get "imgtitle" }} title="{{ . }}"{{ end -}}
+         {{- if eq (.Get "nozoom") "true" }} data-zoomable="false" {{- end -}}
     /> <!-- Closing img tag -->
     {{- if .Get "link" }}</a>{{ end -}}
     {{- if or (or (.Get "title") (.Get "caption")) (.Get "attr") -}}
@@ -21,7 +23,12 @@
             {{- if or (.Get "caption") (.Get "attr") -}}<p>
                 {{- .Get "caption" | markdownify -}}
                 {{- with .Get "attrlink" }}
-                    <a href="{{ . }}">
+                    {{- $target := $.Get "attrlink_target" -}}
+                    {{- /* 智能逻辑：如果是外部链接且未显式指定 target，则默认为 _blank */ -}}
+                    {{- if and (not $target) (or (hasPrefix . "http://") (hasPrefix . "https://")) -}}
+                        {{- $target = "_blank" -}}
+                    {{- end -}}
+                    <a href="{{ . }}"{{ with $target }} target="{{ . }}"{{ if eq . "_blank" }} rel="noopener"{{ end }}{{ end }}>
                 {{- end -}}
                 {{- .Get "attr" | markdownify -}}
                 {{- if .Get "attrlink" }}</a>{{ end }}</p>

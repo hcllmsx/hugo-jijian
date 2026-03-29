@@ -888,7 +888,7 @@
                     </div>
                     <div class="form-group">
                         <label for="title">站点标题 <span class="config-key">(title)</span></label>
-                        <input type="text" id="title" value="极简（Jijian）" placeholder="您的站点标题">
+                        <input type="text" id="title" value="极简（Jijian）" placeholder="你的站点标题">
                     </div>
                     <div class="form-group">
                         <label for="copyright">版权名称 <span class="config-key">(copyright)</span></label>
@@ -897,7 +897,7 @@
                     <div class="form-group">
                         <label for="defaultContentLanguage">默认内容语言 <span
                                 class="config-key">(defaultContentLanguage)</span></label>
-                        <select id="defaultContentLanguage">
+                        <select id="defaultContentLanguage" onchange="previewConfig()">
                             <option value="zh-cn" selected>简体中文（zh-cn）</option>
                             <option value="en">English（en）</option>
                             <option value="zh-tw">繁体中文（zh-tw）</option>
@@ -1053,24 +1053,35 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="defaultImage">文章默认封面图 <span class="config-key">(params.defaultImage)</span></label>
+                        <label for="defaultImage">列表悬停默认封面图 <span class="config-key">(params.defaultImage)</span></label>
                         <div class="path-input-wrapper">
-                            <input type="text" id="defaultImage" placeholder="文章没有手动指定封面图时的保底图路径">
+                            <input type="text" id="defaultImage" placeholder="文章没有手动指定封面图时的竖版保底图路径">
                             <button type="button" class="path-fix-btn"
                                 onclick="fixStaticPath(this.previousElementSibling)">纠正</button>
                         </div>
                         <p style="color: #666; font-size: 0.85em; margin-top: 5px;">当文章未设置 cover.image
-                            时，在列表悬停或搜索预览中显示的保底图。</p>
+                            时，在列表悬停预览中显示的竖版保底图（3:4 比例）。</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="topDefaultImage">文章顶部默认封面图 <span class="config-key">(params.topDefaultImage)</span></label>
+                        <div class="path-input-wrapper">
+                            <input type="text" id="topDefaultImage" placeholder="文章没有手动指定顶部封面图时的横版保底图路径">
+                            <button type="button" class="path-fix-btn"
+                                onclick="fixStaticPath(this.previousElementSibling)">纠正</button>
+                        </div>
+                        <p style="color: #666; font-size: 0.85em; margin-top: 5px;">当文章未设置 topCover
+                            时，在文章页顶部显示的横版保底图（32:9 比例）。需开启下方选项才生效。</p>
                     </div>
 
                     <div class="form-group">
                         <div class="checkbox-group">
-                            <input type="checkbox" id="coverDisplayDefault">
-                            <label for="coverDisplayDefault">在文章顶部显示默认封面图 <span
-                                    class="config-key">(params.cover.displayDefault)</span></label>
+                            <input type="checkbox" id="coverDisplayTopDefault">
+                            <label for="coverDisplayTopDefault">在文章顶部显示默认封面图 <span
+                                    class="config-key">(params.cover.displayTopDefault)</span></label>
                         </div>
                         <p style="color: #666; font-size: 0.85em; margin-top: 5px;">
-                            开启后，即便文章未设置封面图，也会在顶部显示保底图。关闭则仅在列表悬浮或搜索预览中显示。</p>
+                            开启后，即便文章未设置 topCover，也会在文章顶部显示保底图（topDefaultImage）。</p>
                     </div>
                 </div>
 
@@ -1288,9 +1299,14 @@
 
                     <div class="form-group">
                         <div class="checkbox-group">
-                            <input type="checkbox" id="hideSummary" checked>
+                            <input type="checkbox" id="hideSummary" checked onchange="toggleSummarySettings()">
                             <label for="hideSummary">隐藏摘要 <span class="config-key">(params.hideSummary)</span></label>
                         </div>
+                    </div>
+
+                    <div class="form-group" id="summaryLengthGroup" style="display: none;">
+                        <label for="summaryLength">摘要长度 <span class="config-key">(summaryLength)</span></label>
+                        <input type="number" id="summaryLength" value="20" placeholder="如果是中文，建议值：20" oninput="previewConfig()">
                     </div>
 
                     <div class="form-group">
@@ -1328,6 +1344,14 @@
                                 <input type="checkbox" id="showWordCount" checked>
                                 <label for="showWordCount">显示字数统计 <span
                                         class="config-key">(params.ShowWordCount)</span></label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="showLastMod" checked>
+                                <label for="showLastMod">显示最后修改时间 <span
+                                        class="config-key">(params.ShowLastMod)</span></label>
                             </div>
                         </div>
 
@@ -1629,6 +1653,18 @@
                             <label for="minifyOutput">对输出进行压缩 <span
                                     class="config-key">(minify.minifyOutput)</span></label>
                         </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>渲染设置</h2>
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="unsafeHTML">
+                            <label for="unsafeHTML">允许在 Markdown 中直接书写 HTML <span
+                                    class="config-key">(markup.goldmark.renderer.unsafe)</span></label>
+                        </div>
+                        <p class="hint-text">开启后，你可以在文章中直接使用 iframe, div 等 HTML 标签。如果不开启，你必须使用 rawhtml 短代码。</p>
                     </div>
                 </div>
 
@@ -2295,6 +2331,16 @@
             yaml += `theme: jijian\n\n`;
             yaml = addField(yaml, 'defaultContentLanguage', getValue('defaultContentLanguage'));
             yaml = addField(yaml, 'languageCode', getValue('languageCode'));
+            
+            // 自动处理 CJK 语言支持
+            const lang = getValue('defaultContentLanguage');
+            if (lang === 'zh-cn' || lang === 'zh-tw') {
+                yaml += `hasCJKLanguage: true\n`;
+            }
+
+            if (!document.getElementById('hideSummary').checked) {
+                yaml = addField(yaml, 'summaryLength', getValue('summaryLength') || 20);
+            }
             yaml = addField(yaml, 'timeZone', `"${timeZoneValue}"`);
 
             // 多语言配置
@@ -2467,9 +2513,14 @@
                 yaml += `  defaultImage: "${defaultImage}"\n`;
             }
 
-            if (document.getElementById('coverDisplayDefault').checked) {
+            const topDefaultImage = getValue('topDefaultImage');
+            if (topDefaultImage) {
+                yaml += `  topDefaultImage: "${topDefaultImage}"\n`;
+            }
+
+            if (document.getElementById('coverDisplayTopDefault').checked) {
                 yaml += `  cover:\n`;
-                yaml += `    displayDefault: true\n`;
+                yaml += `    displayTopDefault: true\n`;
             }
             yaml += '\n';
 
@@ -2598,6 +2649,7 @@
             if (!document.getElementById('hidemeta').checked) {
                 yaml = addFieldBlock(yaml, '  ', 'DateFormat', getValue('dateFormat'));
                 yaml += `  ShowWordCount: ${document.getElementById('showWordCount').checked}\n`;
+                yaml += `  ShowLastMod: ${document.getElementById('showLastMod').checked}\n`;
                 yaml += `  ShowReadingTime: ${document.getElementById('showReadingTime').checked}\n`;
                 if (document.getElementById('showReadingTime').checked) {
                     yaml = addFieldBlock(yaml, '  ', 'readingSpeed', getValue('readingSpeed'));
@@ -2717,7 +2769,7 @@
             yaml += `markup:\n`;
             yaml += `  goldmark:\n`;
             yaml += `    renderer:\n`;
-            yaml += `      unsafe: true\n`;
+            yaml += `      unsafe: ${document.getElementById('unsafeHTML').checked}\n`;
             yaml += `  highlight:\n`;
             yaml += `    noClasses: false\n`;
             yaml += `    lineNos: ${document.getElementById('lineNos').checked}\n`;
@@ -2975,7 +3027,7 @@ export default middleware;
                 'title', 'baseURL', 'languageCode', 'theme', 'copyright',
                 'paginationPager', 'summaryLength', 'favicon', 'favicon16x16',
                 'favicon32x32', 'apple_touch_icon', 'safari_pinned_tab',
-                'labelText', 'labelIcon', 'labelIconHeight', 'shareImages', 'defaultImage',
+                'labelText', 'labelIcon', 'labelIconHeight', 'shareImages', 'defaultImage', 'topDefaultImage',
                 'author', 'keywords', 'description', 'footerText',
                 // 首页配置
                 'cardModeTitle', 'cardModeSubtitle', 'cardModeImageUrl',
@@ -3440,6 +3492,8 @@ export default middleware;
                             if (match) config.hugoYaml.shareImages = match[1];
                         } else if (trimmed.startsWith('defaultImage:')) {
                             config.hugoYaml.defaultImage = trimmed.substring('defaultImage:'.length).trim().replace(/['"]/g, '');
+                        } else if (trimmed.startsWith('topDefaultImage:')) {
+                            config.hugoYaml.topDefaultImage = trimmed.substring('topDefaultImage:'.length).trim().replace(/['"]/g, '');
                         } else if (trimmed.startsWith('mainSections:')) {
                             config.hugoYaml.mainSections = trimmed.substring('mainSections:'.length).trim();
                         } else if (trimmed.startsWith('keywords:')) {
@@ -3489,6 +3543,8 @@ export default middleware;
                             config.hugoYaml.showReadingTime = trimmed.includes('true');
                         } else if (trimmed.startsWith('ShowWordCount:')) {
                             config.hugoYaml.showWordCount = trimmed.includes('true');
+                        } else if (trimmed.startsWith('ShowLastMod:')) {
+                            config.hugoYaml.showLastMod = trimmed.includes('true');
                         } else if (trimmed.startsWith('DateFormat:')) {
                             config.hugoYaml.dateFormat = trimmed.substring('DateFormat:'.length).trim();
                         } else if (trimmed.startsWith('readingSpeed:')) {
@@ -3689,8 +3745,8 @@ export default middleware;
 
                     // cover 内字段
                     if (inCover && indent === 4) {
-                        if (trimmed.startsWith('displayDefault:')) {
-                            config.hugoYaml.coverDisplayDefault = trimmed.includes('true');
+                        if (trimmed.startsWith('displayTopDefault:')) {
+                            config.hugoYaml.coverDisplayTopDefault = trimmed.includes('true');
                         }
                     }
 
@@ -4059,12 +4115,20 @@ export default middleware;
             URL.revokeObjectURL(url);
         }
 
+        // 切换摘要链接显示
+        function toggleSummarySettings(skipPreview = false) {
+            const hideSummary = document.getElementById('hideSummary').checked;
+            document.getElementById('summaryLengthGroup').style.display = hideSummary ? 'none' : 'block';
+            if (!skipPreview) previewConfig();
+        }
+
         // 初始化
         document.addEventListener('DOMContentLoaded', function () {
             // 初始化条件显示
             toggleHomeMode();
             toggleMetaSettings();
             toggleEdgeOneSettings();
+            toggleSummarySettings(true);
             document.getElementById('comments').dispatchEvent(new Event('change'));
             document.getElementById('showtoc').dispatchEvent(new Event('change'));
             document.getElementById('showReadingTime').dispatchEvent(new Event('change'));

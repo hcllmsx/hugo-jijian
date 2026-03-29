@@ -15,7 +15,18 @@
 {{- end -}}
 {{- end }}
 <meta name="twitter:title" content="{{ .Title }}">
-<meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end -}}">
+{{- $isEncrypted := or (and .File (in .File.Path "protected")) .Params.mima .Params.password -}}
+{{- $twitterDescription := .Description -}}
+{{- if not $twitterDescription -}}
+  {{- if $isEncrypted -}}
+    {{- $twitterDescription = (T "protected_summary") -}}
+  {{- else if .IsPage -}}
+    {{- $twitterDescription = .Summary -}}
+  {{- else if site.Params.description -}}
+    {{- $twitterDescription = site.Params.description -}}
+  {{- end -}}
+{{- end -}}
+<meta name="twitter:description" content="{{ $twitterDescription | plainify | htmlUnescape | chomp }}">
 
 {{- $twitterSite := "" }}
 {{- with site.Params.social }}

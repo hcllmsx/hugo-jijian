@@ -54,8 +54,19 @@
     <div class="archive-posts">
       {{- range .Pages }}
       {{- if eq .Kind "page" }}
-      {{- $coverUrl := .Params.cover.image | default site.Params.defaultImage | relURL }}
-      {{- if not $coverUrl }}{{ $coverUrl = "" }}{{ end }}
+      {{- /* 获取封面图 URL 用于悬浮预览 */ -}}
+      {{- $coverImgName := .Params.cover.image | default site.Params.defaultImage }}
+      {{- $coverUrl := "" -}}
+      {{- if $coverImgName -}}
+        {{- /* 尝试从当前文章 Page Bundle 中查找 */ -}}
+        {{- $pbImg := (.Resources.ByType "image").GetMatch (printf "*%s*" $coverImgName) -}}
+        {{- if $pbImg -}}
+          {{- $coverUrl = $pbImg.Permalink -}}
+        {{- else -}}
+          {{- $coverUrl = $coverImgName | relURL -}}
+        {{- end -}}
+      {{- end -}}
+
       <div class="archive-entry" {{ if and $coverUrl (not .Params.cover.hidden) }} data-cover="{{ $coverUrl }}" {{ end }}>
         <h3 class="archive-entry-title entry-hint-parent">
           {{- .Title | markdownify }}

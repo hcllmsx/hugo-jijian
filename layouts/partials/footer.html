@@ -276,9 +276,10 @@
 <script src="{{ $mediumZoom.RelPermalink }}" integrity="{{ $mediumZoom.Data.Integrity }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const images = Array.from(document.querySelectorAll(".post-content img"));
+        const images = Array.from(document.querySelectorAll(".post-content img, .post-single img"));
         // 过滤掉已经在 <a> 标签内部的图片（比如 figure 设置了 link 属性的情况）
-        const zoomableImages = images.filter(img => !img.closest('a'));
+        // 同时也过滤掉行内小图片 (.in-text) 以及显式标记为不可缩放的图片 (data-zoomable="false")
+        const zoomableImages = images.filter(img => !img.closest('a') && !img.classList.contains('in-text') && img.dataset.zoomable !== 'false');
         
         mediumZoom(zoomableImages, {
             margin: 24,

@@ -8,7 +8,18 @@
   <meta property="og:title" content="{{ . }}">
 {{- end }}
 
-{{- with or .Description .Summary site.Params.description | plainify | htmlUnescape | chomp }}
+{{- $isEncrypted := or (and .File (in .File.Path "protected")) .Params.mima .Params.password -}}
+{{- $ogDescription := .Description -}}
+{{- if not $ogDescription -}}
+  {{- if $isEncrypted -}}
+    {{- $ogDescription = (T "protected_summary") -}}
+  {{- else if .IsPage -}}
+    {{- $ogDescription = .Summary -}}
+  {{- else if site.Params.description -}}
+    {{- $ogDescription = site.Params.description -}}
+  {{- end -}}
+{{- end -}}
+{{- with $ogDescription | plainify | htmlUnescape | chomp }}
   <meta property="og:description" content="{{ . }}">
 {{- end }}
 

@@ -7,6 +7,7 @@
 {{- end -}}
 
 {{- if not $page.Date.IsZero -}}
+{{- $showLastmod := and (site.Params.ShowLastMod | default true) (not $page.Lastmod.IsZero) (ne $page.Lastmod $page.Date) -}}
 {{- $hoverDate := $page.Date -}}
 {{- $dateFormat := default ":date_long" site.Params.DateFormat -}}
 {{- $hasTime := or (in $dateFormat "15") (in $dateFormat "03") -}}
@@ -21,7 +22,45 @@
   {{- /* 列表页输出长短两种格式，交由 CSS 在手机端自适应切换断点 */ -}}
   {{- $dateHtml = printf "<span class='long-date'>%s</span><span class='short-date' style='display:none;'>%s</span>" ($page.Date | time.Format $dateFormat) ($page.Date | time.Format "2006-01-02") -}}
 {{- end -}}
-{{- $scratch.Add "meta" (slice (printf "<span title='%s'>%s</span>" $hoverDate $dateHtml)) }}
+
+{{- if $showLastmod -}}
+  {{- $lastmodHtml := $page.Lastmod | time.Format $dateFormat -}}
+  {{- $hoverLastmod := $page.Lastmod -}}
+  {{- if $hoverFormat -}}{{- $hoverLastmod = $page.Lastmod.Format $hoverFormat -}}{{- end -}}
+  
+  {{- if $is_list -}}
+    {{- /* 列表页：如果是 posts 目录，默认显示最后修改时间 */ -}}
+    {{- if eq $page.Section "posts" -}}
+      {{- $lastmodLabel := T "last_mod" | default "Last updated" -}}
+      {{- $lastmodHtml = printf "<span class='long-date'>%s %s</span><span class='short-date' style='display:none;'>%s</span>" $lastmodLabel ($page.Lastmod | time.Format $dateFormat) ($page.Lastmod | time.Format "2006-01-02") -}}
+      {{- $scratch.Add "meta" (slice (printf "<span title='%s' class='post-date lastmod-style'>%s</span>" $hoverLastmod $lastmodHtml)) }}
+    {{- else -}}
+      {{- $scratch.Add "meta" (slice (printf "<span title='%s' class='post-date'>%s</span>" $hoverDate $dateHtml)) }}
+    {{- end -}}
+  {{- else -}}
+    {{- /* 文章页：默认显示最后修改时间，点击可切换 */ -}}
+    {{- $lastmodLabel := T "last_mod" | default "Last updated" -}}
+    {{- $lastmodText := printf "%s %s" $lastmodLabel ($page.Lastmod | time.Format $dateFormat) -}}
+    {{- /* 为了 JS 切换方便，存储原始 HTML */ -}}
+    {{- $scratch.Add "meta" (slice (printf "<span title='%s' class='post-date clickable-date' onclick='if(window.toggleDate)toggleDate(this)' data-current='lastmod' data-date='%s' data-lastmod='%s' data-hover-date='%s' data-hover-lastmod='%s' style='cursor:pointer'>%s</span>" $hoverLastmod $dateHtml $lastmodText $hoverDate $hoverLastmod $lastmodText)) }}
+    
+    {{- /* 注入切换脚本，确保只注入一次 */ -}}
+    {{- if not ($page.Scratch.Get "dateToggleScriptAdded") -}}
+      {{- $page.Scratch.Set "dateToggleScriptAdded" true -}}
+      <script>
+        function toggleDate(el) {
+          const current = el.getAttribute('data-current');
+          const next = current === 'lastmod' ? 'date' : 'lastmod';
+          el.setAttribute('data-current', next);
+          el.innerHTML = el.getAttribute('data-' + next);
+          el.title = el.getAttribute('data-hover-' + next);
+        }
+      </script>
+    {{- end -}}
+  {{- end -}}
+{{- else -}}
+  {{- $scratch.Add "meta" (slice (printf "<span title='%s' class='post-date'>%s</span>" $hoverDate $dateHtml)) }}
+{{- end }}
 {{- end }}
 
 {{- if or ($page.Param "ShowReadingTime") ($page.Param "ShowWordCount") -}}

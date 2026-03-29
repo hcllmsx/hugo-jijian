@@ -173,6 +173,46 @@ function processFile(filePath) {
           titleTextEl.innerText = realTitleEl.innerText;
         }
       }
+      
+      // 联动修改真实的 Cover（竖版封面/列表封面）
+      const realCoverEl = document.getElementById('real-cover');
+      if (realCoverEl) {
+        const rcImgUrl = realCoverEl.getAttribute('data-image');
+        const rcCaption = realCoverEl.getAttribute('data-caption');
+        const coverImg = document.querySelector('.entry-cover img');
+        if (coverImg && rcImgUrl) {
+          coverImg.src = rcImgUrl;
+          coverImg.srcset = ''; // 清除旧的响应式图片集
+          const rcAlt = realCoverEl.getAttribute('data-alt');
+          if (rcAlt) {
+            coverImg.alt = rcAlt;
+          }
+          const figCaption = document.querySelector('.entry-cover figcaption');
+          if (figCaption && rcCaption) {
+            figCaption.innerText = rcCaption;
+          }
+        }
+      }
+
+      // 联动修改真实的 TopCover（横版顶部封面）
+      const realTopCoverEl = document.getElementById('real-top-cover');
+      if (realTopCoverEl) {
+        const rtcImgUrl = realTopCoverEl.getAttribute('data-image');
+        const rtcCaption = realTopCoverEl.getAttribute('data-caption');
+        const coverImg = document.querySelector('.entry-cover img');
+        if (coverImg && rtcImgUrl) {
+          coverImg.src = rtcImgUrl;
+          coverImg.srcset = '';
+          const rtcAlt = realTopCoverEl.getAttribute('data-alt');
+          if (rtcAlt) {
+            coverImg.alt = rtcAlt;
+          }
+          const figCaption = document.querySelector('.entry-cover figcaption');
+          if (figCaption && rtcCaption) {
+            figCaption.innerText = rtcCaption;
+          }
+        }
+      }
 
       // 联动显示 TOC 和 Description
       const toc = document.querySelector('.toc, #toc, .post-toc');

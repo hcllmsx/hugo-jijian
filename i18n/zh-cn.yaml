@@ -41,6 +41,9 @@
 - id: hover_date_format_no_time
   translation: "2006-01-02 北京时间"
 
+- id: last_mod
+  translation: "最后更新"
+
 - id: comments_loading
   translation: "加载评论中..."
 

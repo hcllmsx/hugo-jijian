@@ -4,14 +4,14 @@
 {{- $tocHover := .Param "tocHover" | default false }}
 
 <div class="post-container">
-  {{- $isEncrypted := or (in .File.Path "protected") .Params.mima .Params.password -}}
+  {{- $isEncrypted := or (and .File (in .File.Path "protected")) .Params.mima .Params.password -}}
   {{- if and (.Param "ShowToc" | default true) (or (eq $tocPosition "left") (eq $tocPosition "right") (eq $tocPosition "auto")) }}
   <aside class="toc-sidebar{{ if eq $tocPosition "auto" }} toc-auto{{ else }} {{ $tocPosition }}{{ end }}{{ if $tocHover }} toc-hover{{ end }}" {{ if $isEncrypted }}style="display:none"{{ end }}>
     {{- partial "toc.html" . }}
   </aside>
   {{- end }}
 
-  <article class="post-single" {{ if or (in .File.Path "protected") .Params.mima .Params.password }}data-pagefind-ignore{{ else }}data-pagefind-body{{ end }}>
+  <article class="post-single" {{ if or (and .File (in .File.Path "protected")) .Params.mima .Params.password }}data-pagefind-ignore{{ else }}data-pagefind-body{{ end }}>
     {{- $isHidden := (.Param "cover.hiddenInSingle") | default (.Param "cover.hidden") | default false }}
     {{- partial "cover.html" (dict "cxt" . "IsSingle" true "isHidden" $isHidden) }}
 
@@ -64,6 +64,45 @@
         {{- if .Params.realTitle -}}
           <div id="real-title" style="display:none">{{ .Params.realTitle }}</div>
         {{- end -}}
+        {{- /* 处理 realCover */ -}}
+        {{- $realCover := .Params.realCover -}}
+        {{- if $realCover -}}
+          {{- $rcImg := "" -}}
+          {{- $rcCap := "" -}}
+          {{- $rcAlt := "" -}}
+          {{- if reflect.IsMap $realCover -}}
+            {{- $rcImg = $realCover.image -}}
+            {{- $rcCap = $realCover.caption | default "" -}}
+            {{- $rcAlt = $realCover.alt | default $rcCap -}}
+          {{- else -}}
+            {{- $rcImg = $realCover -}}
+            {{- $rcAlt = .Params.realCoverAlt | default .Params.realCoverCaption | default "" -}}
+            {{- $rcCap = .Params.realCoverCaption | default "" -}}
+          {{- end -}}
+          {{- /* 尝试获取资源Permalink（如果是本地图片） */ -}}
+          {{- $pageBundleImg := (.Resources.ByType "image").GetMatch (printf "*%s*" $rcImg) -}}
+          {{- $finalRcImg := cond (ne $pageBundleImg nil) $pageBundleImg.Permalink ($rcImg | absURL) -}}
+          <div id="real-cover" style="display:none" data-image="{{ $finalRcImg }}" data-caption="{{ $rcCap }}" data-alt="{{ $rcAlt }}"></div>
+        {{- end -}}
+        {{- /* 处理 realTopCover */ -}}
+        {{- $realTopCover := .Params.realTopCover -}}
+        {{- if $realTopCover -}}
+          {{- $rtcImg := "" -}}
+          {{- $rtcCap := "" -}}
+          {{- $rtcAlt := "" -}}
+          {{- if reflect.IsMap $realTopCover -}}
+            {{- $rtcImg = $realTopCover.image -}}
+            {{- $rtcCap = $realTopCover.caption | default "" -}}
+            {{- $rtcAlt = $realTopCover.alt | default $rtcCap -}}
+          {{- else -}}
+            {{- $rtcImg = $realTopCover -}}
+            {{- $rtcAlt = .Params.realTopCoverAlt | default .Params.realTopCoverCaption | default "" -}}
+            {{- $rtcCap = .Params.realTopCoverCaption | default "" -}}
+          {{- end -}}
+          {{- $pageBundleImg := (.Resources.ByType "image").GetMatch (printf "*%s*" $rtcImg) -}}
+          {{- $finalRtcImg := cond (ne $pageBundleImg nil) $pageBundleImg.Permalink ($rtcImg | absURL) -}}
+          <div id="real-top-cover" style="display:none" data-image="{{ $finalRtcImg }}" data-caption="{{ $rtcCap }}" data-alt="{{ $rtcAlt }}"></div>
+        {{- end -}}
       {{- end }}
 
       <div class="post-content">
@@ -104,45 +143,33 @@
   </article>
 </div>
 
-{{- if $tocHover }}
 <script>
-  var tocHoverDelay = parseInt("{{ .Site.Params.tocHoverDelay | default 200 }}");
-  var tocHideDelay = parseInt("{{ .Site.Params.tocHideDelay | default 2000 }}");
   document.addEventListener('DOMContentLoaded', function () {
-    const tocSidebar = document.querySelector('.toc-sidebar.toc-hover');
-    const postContent = document.querySelector('.post-content');
-    let hoverTimer = null;
-    let hideTimer = null;
-    let currentPosition = null;
+    var tocSidebar = document.querySelector('.toc-sidebar');
+    if (!tocSidebar) return;
 
-    let currentTop = 0;
-    let targetTop = 0;
-    let isInitialSet = false;
+    // ========== 通用定位逻辑 ==========
+    var currentTop = 0;
+    var targetTop = 0;
+    var isInitialSet = false;
 
-    // 计算理想的目录垂直位置
+    // toc-auto 模式且非 hover：默认添加 left 定位类
+    if (tocSidebar.classList.contains('toc-auto') && !tocSidebar.classList.contains('toc-hover')) {
+      tocSidebar.classList.add('left');
+    }
+
     function updateTocTarget() {
-      const anchor = document.querySelector('.breadcrumbs') || document.querySelector('.post-title');
+      var anchor = document.querySelector('.breadcrumbs') || document.querySelector('.post-title');
       if (anchor && tocSidebar) {
-        // 锚点相对于视口（窗口）的即时位置
-        const rect = anchor.getBoundingClientRect();
-        const scrollY = window.scrollY;
-        
-        // 视差配置：只有滑过 100px 后，目录才开始产生向上位移的“迟滞”感
-        const threshold = 100; 
-        const parallaxFactor = 0.3; // 视差系数
-        const minTop = 80; // 吸顶保底，不让目录滑出屏幕顶部
-        
-        // 计算视差补偿量：当滚动超过阈值时，目录会比文章滑得慢一些
-        const parallaxOffset = Math.max(0, scrollY - threshold) * parallaxFactor;
-        
-        // 最终 target：原本的锚点位置 + 视差偏移。
-        let target = rect.top + parallaxOffset;
-        
-        // 保底：不要滑到导航轮廓以上（吸顶）
+        var rect = anchor.getBoundingClientRect();
+        var scrollY = window.scrollY;
+        var threshold = 100;
+        var parallaxFactor = 0.3;
+        var minTop = 80;
+        var parallaxOffset = Math.max(0, scrollY - threshold) * parallaxFactor;
+        var target = rect.top + parallaxOffset;
         target = Math.max(minTop, target);
         targetTop = target;
-
-        // 第一次计算时立即设置初始位置
         if (!isInitialSet) {
           currentTop = targetTop;
           tocSidebar.style.top = currentTop + 'px';
@@ -151,146 +178,104 @@
       }
     }
 
-    // 缓动循环：让当前位置缓慢追赶目标位置（产生平滑拖尾感）
     function smoothScrollLoop() {
       if (isInitialSet) {
-        const diff = targetTop - currentTop;
-        // 只要差异大于 0.1px 就持续更新
+        var diff = targetTop - currentTop;
         if (Math.abs(diff) > 0.1) {
-          // 0.08 为灵敏度系数，数值越小越缓慢、越顺滑
-          currentTop += diff * 0.08; 
+          currentTop += diff * 0.08;
           tocSidebar.style.top = currentTop + 'px';
         }
       }
       requestAnimationFrame(smoothScrollLoop);
     }
 
-    // 初始化计算位置并开启缓动
     updateTocTarget();
     smoothScrollLoop();
-    
-    // 监听滚动事件只需更新目标值，性能更佳
     window.addEventListener('scroll', updateTocTarget);
 
-    // 如果有封面图，等待图片加载完成后重新校准初始高度，防止布局偏移
-    const coverImg = document.querySelector('.entry-cover img');
+    var coverImg = document.querySelector('.entry-cover img');
     if (coverImg) {
-      if (coverImg.complete) {
-        updateTocTarget();
-      } else {
-        coverImg.addEventListener('load', updateTocTarget);
-      }
+      if (coverImg.complete) { updateTocTarget(); }
+      else { coverImg.addEventListener('load', updateTocTarget); }
     }
 
-    // 页面两侧的检测区域
-    const leftZone = document.createElement('div');
-    leftZone.className = 'toc-hover-zone left';
-    document.body.appendChild(leftZone);
+    // ========== hover 模式交互逻辑 ==========
+    if (tocSidebar.classList.contains('toc-hover')) {
+      var tocHoverDelay = parseInt("{{ .Site.Params.tocHoverDelay | default 200 }}");
+      var tocHideDelay = parseInt("{{ .Site.Params.tocHideDelay | default 2000 }}");
+      var postContent = document.querySelector('.post-content');
+      var hoverTimer = null;
+      var hideTimer = null;
+      var currentPosition = null;
 
-    const rightZone = document.createElement('div');
-    rightZone.className = 'toc-hover-zone right';
-    document.body.appendChild(rightZone);
+      var leftZone = document.createElement('div');
+      leftZone.className = 'toc-hover-zone left';
+      document.body.appendChild(leftZone);
 
-    // 显示目录
-    function showToc() {
-      // 清除可能存在的隐藏计时器
-      if (hideTimer) {
-        clearTimeout(hideTimer);
-        hideTimer = null;
+      var rightZone = document.createElement('div');
+      rightZone.className = 'toc-hover-zone right';
+      document.body.appendChild(rightZone);
+
+      function showToc() {
+        if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+        if (tocSidebar.classList.contains('toc-auto') && currentPosition) {
+          tocSidebar.classList.remove('left', 'right');
+          tocSidebar.classList.add(currentPosition);
+        }
+        tocSidebar.style.opacity = '1';
+        tocSidebar.style.visibility = 'visible';
       }
-      if (tocSidebar.classList.contains('toc-auto') && currentPosition) {
-        tocSidebar.classList.remove('left', 'right');
-        tocSidebar.classList.add(currentPosition);
+
+      function hideToc() {
+        tocSidebar.style.opacity = '0';
+        tocSidebar.style.visibility = 'hidden';
       }
-      tocSidebar.style.opacity = '1';
-      tocSidebar.style.visibility = 'visible';
-    }
 
-    // 隐藏目录
-    function hideToc() {
-      tocSidebar.style.opacity = '0';
-      tocSidebar.style.visibility = 'hidden';
-    }
-
-    // 延迟隐藏目录
-    function delayHideToc() {
-      hideTimer = setTimeout(hideToc, tocHideDelay);
-    }
-
-    // 添加悬停检测区域的事件监听
-    leftZone.addEventListener('mouseenter', function () {
-      currentPosition = 'left';
-      // 清除可能存在的隐藏计时器
-      if (hideTimer) {
-        clearTimeout(hideTimer);
-        hideTimer = null;
+      function delayHideToc() {
+        hideTimer = setTimeout(hideToc, tocHideDelay);
       }
-      // 设置显示计时器
-      hoverTimer = setTimeout(showToc, tocHoverDelay);
-    });
 
-    rightZone.addEventListener('mouseenter', function () {
-      currentPosition = 'right';
-      // 清除可能存在的隐藏计时器
-      if (hideTimer) {
-        clearTimeout(hideTimer);
-        hideTimer = null;
-      }
-      // 设置显示计时器
-      hoverTimer = setTimeout(showToc, tocHoverDelay);
-    });
-    leftZone.addEventListener('mouseleave', function () {
-      // 清除显示计时器
-      if (hoverTimer) {
-        clearTimeout(hoverTimer);
-        hoverTimer = null;
-      }
-    });
+      leftZone.addEventListener('mouseenter', function () {
+        currentPosition = 'left';
+        if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+        hoverTimer = setTimeout(showToc, tocHoverDelay);
+      });
 
-    rightZone.addEventListener('mouseleave', function () {
-      // 清除显示计时器
-      if (hoverTimer) {
-        clearTimeout(hoverTimer);
-        hoverTimer = null;
-      }
-    });
+      rightZone.addEventListener('mouseenter', function () {
+        currentPosition = 'right';
+        if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+        hoverTimer = setTimeout(showToc, tocHoverDelay);
+      });
 
-    // 目录区域的事件监听
-    if (tocSidebar) {
+      leftZone.addEventListener('mouseleave', function () {
+        if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+      });
+
+      rightZone.addEventListener('mouseleave', function () {
+        if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+      });
+
       tocSidebar.addEventListener('mouseenter', function () {
-        // 清除所有计时器
-        if (hoverTimer) {
-          clearTimeout(hoverTimer);
-          hoverTimer = null;
-        }
-        if (hideTimer) {
-          clearTimeout(hideTimer);
-          hideTimer = null;
-        }
-        // 立即显示目录
+        if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+        if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
         showToc();
       });
 
       tocSidebar.addEventListener('mouseleave', function () {
-        // 延迟2秒隐藏目录
         delayHideToc();
       });
-    }
 
-    // 正文区域的事件监听
-    if (postContent) {
-      postContent.addEventListener('mouseenter', function () {
-        // 如果目录已经显示，延迟2秒隐藏
-        if (tocSidebar.style.opacity === '1' || tocSidebar.style.visibility === 'visible') {
-          delayHideToc();
-        }
-      });
-    }
+      if (postContent) {
+        postContent.addEventListener('mouseenter', function () {
+          if (tocSidebar.style.opacity === '1' || tocSidebar.style.visibility === 'visible') {
+            delayHideToc();
+          }
+        });
+      }
 
-    // 初始隐藏目录
-    hideToc();
+      hideToc();
+    }
   });
 </script>
-{{- end }}
 
 {{- end }}{{/* end main */}}

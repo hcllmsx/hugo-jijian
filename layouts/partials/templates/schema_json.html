@@ -60,6 +60,8 @@
 }
 </script>
 {{- if .IsPage }}
+{{- $isEncrypted := or (and .File (in .File.Path "protected")) .Params.mima .Params.password -}}
+{{- if not $isEncrypted }}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -123,6 +125,7 @@
   }
 }
 </script>
+{{- end }}{{/* $isEncrypted end */}}
 {{- end }}{{/* .IsPage end */}}
 
 {{- end -}}

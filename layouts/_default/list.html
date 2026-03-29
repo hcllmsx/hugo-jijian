@@ -45,6 +45,11 @@
 {{- $pages = where $pages "Params.hiddenInList" "ne" true }}
 {{- end }}
 
+{{- /* 针对 posts 目录，按最后修改时间排序 */ -}}
+{{- if and (eq .Section "posts") (site.Params.ShowLastMod | default true) }}
+  {{- $pages = $pages.ByLastmod.Reverse }}
+{{- end }}
+
 {{- if .IsHome }}
 {{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}
 {{- $pages = where $pages "Params.hiddenInHomeList" "ne" true }}
@@ -69,11 +74,21 @@
 {{- $class = "post-entry tag-entry" }}
 {{- end }}
 
-{{- /* 获取封面图 URL 用于悬浮预览 */ -}}
-{{- $coverUrl := .Params.cover.image | default site.Params.defaultImage | relURL }}
-{{- if not $coverUrl }}{{ $coverUrl = "" }}{{ end }}
+  {{- /* 获取封面图 URL 用于悬浮预览 */ -}}
+  {{- $coverImgName := .Params.cover.image | default site.Params.defaultImage }}
+  {{- $coverUrl := "" -}}
+  {{- if $coverImgName -}}
+    {{- /* 尝试从当前文章 Page Bundle 中查找 */ -}}
+    {{- $pbImg := (.Resources.ByType "image").GetMatch (printf "*%s*" $coverImgName) -}}
+    {{- if $pbImg -}}
+      {{- $coverUrl = $pbImg.Permalink -}}
+    {{- else -}}
+      {{- $coverUrl = $coverImgName | relURL -}}
+    {{- end -}}
+  {{- end -}}
 
-  {{- $isEncrypted := or (in .File.Path "protected") .Params.mima .Params.password -}}
+
+  {{- $isEncrypted := or (and .File (in .File.Path "protected")) .Params.mima .Params.password -}}
   <article class="{{ $class }}" {{ if and $coverUrl (not .Params.cover.hidden) }} data-cover="{{ $coverUrl }}" {{ end }} {{ if $isEncrypted }}data-pagefind-ignore{{ end }}>
   <header class="entry-header">
     <h2 class="entry-hint-parent">

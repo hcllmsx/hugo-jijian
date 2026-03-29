@@ -1,7 +1,8 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-{{- if and (not (site.Param "robotsNoIndex")) (or hugo.IsProduction (eq site.Params.env "production")) }}
+{{- $isEncrypted := or (and .File (in .File.Path "protected")) .Params.mima .Params.password -}}
+{{- if and (not site.Params.robotsNoIndex) (not .Params.robotsNoIndex) (not $isEncrypted) (or hugo.IsProduction (eq site.Params.env "production")) }}
 <meta name="robots" content="index, follow">
 {{- else }}
 <meta name="robots" content="noindex, nofollow">
@@ -19,9 +20,18 @@
     {{- range $i, $e := .Params.keywords }}{{ if $i }}, {{ end }}{{ $e }}{{ end }} {{- else }}
     {{- range $i, $e := .Params.tags }}{{ if $i }}, {{ end }}{{ $e }}{{ end }} {{- end -}}">
 {{- end }}
-<meta name="description" content="{{- with .Description }}{{ . }}{{- else }}{{- if or .IsPage .IsSection}}
-    {{- .Summary | default (printf " %s - %s" .Title site.Title) }}{{- else }}{{- with site.Params.description }}{{ .
-    }}{{- end }}{{- end }}{{- end -}}">
+{{- $isEncrypted := or (and .File (in .File.Path "protected")) .Params.mima .Params.password -}}
+{{- $seoDescription := .Description -}}
+{{- if not $seoDescription -}}
+  {{- if $isEncrypted -}}
+    {{- $seoDescription = (T "protected_summary") -}}
+  {{- else if or .IsPage .IsSection -}}
+    {{- $seoDescription = .Summary | default (printf " %s - %s" .Title site.Title) -}}
+  {{- else -}}
+    {{- $seoDescription = site.Params.description -}}
+  {{- end -}}
+{{- end -}}
+<meta name="description" content="{{ $seoDescription | plainify | htmlUnescape | chomp }}">
 <meta name="author" content="{{ (partial "author.html" . ) }}">
 <link rel="canonical"
     href="{{ if .Params.canonicalURL -}} {{ trim .Params.canonicalURL " " }} {{- else -}} {{ .Permalink }} {{- end }}">

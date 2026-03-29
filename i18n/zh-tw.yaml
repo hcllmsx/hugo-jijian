@@ -42,6 +42,9 @@
 - id: hover_date_format_no_time
   translation: "2006-01-02 北京時間"
 
+- id: last_mod
+  translation: "最後更新"
+
 - id: comments_loading
   translation: "載入評論中..."
 
