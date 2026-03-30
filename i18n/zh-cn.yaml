@@ -4,6 +4,12 @@
 - id: next_page
   translation: "下一页"
 
+- id: prev_post
+  translation: "上一篇"
+
+- id: next_post
+  translation: "下一篇"
+
 - id: read_time
   translation:
     one : "1 分钟"

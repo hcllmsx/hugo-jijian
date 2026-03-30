@@ -1,16 +1,54 @@
 {{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
+
+{{- /* 区分分类循环模式与全局模式 */ -}}
+{{- $isCategoryLoop := false }}
+{{- if .Params.categories }}
+  {{- $primaryCategory := index .Params.categories 0 }}
+  {{- $categoryPages := where site.RegularPages "Params.categories" "intersect" (slice $primaryCategory) }}
+  {{- if gt (len $categoryPages) 1 }}
+    {{- $pages = $categoryPages }}
+    {{- $isCategoryLoop = true }}
+  {{- end }}
+{{- end }}
+
+{{- /* 定义最终序列 $pages */ -}}
+{{- $pinPosts := where $pages "Params.pin" "gt" 0 }}
+{{- $normalPosts := $pages | complement $pinPosts }}
+
+{{- if $isCategoryLoop }}
+  {{- /* 1. 分类导航：置顶优先(升序) + 普通文章正序(旧->新) */ -}}
+  {{- /* 预期顺序：[00home(pin:1), 01, 02, ...] */ -}}
+  {{- $pinPosts = (sort $pinPosts "Params.pin" "asc").ByDate }}
+  {{- $normalPosts = $normalPosts.ByDate }}
+  {{- $pages = $pinPosts | append $normalPosts }}
+{{- else }}
+  {{- /* 2. 全面导航：同步 list.html 的置顶优先(升序) + 倒序(新->旧) */ -}}
+  {{- if site.Params.ShowLastMod | default true }}
+    {{- $pinPosts = $pinPosts.ByLastmod.Reverse }}
+    {{- $normalPosts = $normalPosts.ByLastmod.Reverse }}
+  {{- else }}
+    {{- $pinPosts = $pinPosts.ByDate.Reverse }}
+    {{- $normalPosts = $normalPosts.ByDate.Reverse }}
+  {{- end }}
+  {{- $pinPosts = sort $pinPosts "Params.pin" "asc" }}
+  {{- $pages = $pinPosts | append $normalPosts }}
+{{- end }}
+
 {{- if and (gt (len $pages) 1) (in $pages . ) }}
 <nav class="paginav">
+  {{- /* 左侧：展示更旧的文章 (Next) -> 对应 Wiki 中的 [00] */ -}}
   {{- with $pages.Next . }}
   <a class="prev" href="{{ .RelPermalink }}">
-    <span class="title">« {{ i18n "prev_page" }}</span>
+    <span class="title">« {{ i18n "prev_post" }}</span>
     <br>
     <span>{{- .Name -}}</span>
   </a>
   {{- end }}
+  
+  {{- /* 右侧：展示更新的文章 (Prev) -> 对应 Wiki 中的 [02] */ -}}
   {{- with $pages.Prev . }}
   <a class="next" href="{{ .RelPermalink }}">
-    <span class="title">{{ i18n "next_page" }} »</span>
+    <span class="title">{{ i18n "next_post" }} »</span>
     <br>
     <span>{{- .Name -}}</span>
   </a>
