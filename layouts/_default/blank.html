@@ -44,6 +44,12 @@
     </ul>
   </footer>
 
+  {{- if .Params.comments }}
+  <div id="comments">
+    {{- partial "comments.html" . }}
+  </div>
+  {{- end }}
+
 </article>
 
 {{- end }}{{/* end main */}}
