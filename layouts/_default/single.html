@@ -112,8 +112,12 @@
       </div>
 
       <footer class="post-footer">
+        {{- $categories := .Language.Params.Taxonomies.category | default "categories" }}
         {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
         <ul class="post-tags">
+          {{- range ($.GetTerms $categories) }}
+          <li><a href="{{ .Permalink }}" class="post-category">{{ .LinkTitle }}</a></li>
+          {{- end }}
           {{- range ($.GetTerms $tags) }}
           <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
           {{- end }}

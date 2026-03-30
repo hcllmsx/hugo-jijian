@@ -493,6 +493,17 @@
     background: var(--code-bg);
 }
 
+.post-tags a.post-category {
+    font-weight: 600;
+    background: var(--tertiary);
+    color: var(--primary);
+}
+
+[data-theme="dark"] .post-tags a.post-category {
+    background: var(--secondary);
+    color: var(--theme);
+}
+
 .post-tags a:hover,
 .paginav a:hover {
     background: var(--border);
