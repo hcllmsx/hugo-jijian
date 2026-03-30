@@ -35,6 +35,16 @@
     .footer {
         padding: calc((var(--footer-height) - var(--gap) - 10px) / 2) var(--gap);
     }
+
+    /* pagination */
+    .pagination {
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .pagination .next {
+        margin-inline-start: 0;
+    }
 }
 
 

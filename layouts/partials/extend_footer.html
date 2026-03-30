@@ -3,6 +3,9 @@
 
 <script>
     (function () {
+        // 手机端不启用封面预览
+        if (window.matchMedia('(max-width: 768px)').matches) return;
+
         // 创建预览容器
         const preview = document.createElement('div');
         preview.className = 'cover-preview';
