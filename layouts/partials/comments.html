@@ -85,7 +85,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', fun
         data-repo-id="{{ .Site.Params.giscus.repoId }}"
         data-category="{{ .Site.Params.giscus.category }}"
         data-category-id="{{ .Site.Params.giscus.categoryId }}"
-        data-mapping="{{ .Site.Params.giscus.mapping | default "pathname" }}"
+        data-mapping="{{ .Site.Params.giscus.mapping | default "title" }}"
         data-strict="{{ .Site.Params.giscus.strict | default "0" }}"
         data-reactions-enabled="{{ .Site.Params.giscus.reactionsEnabled | default "1" }}"
         data-emit-metadata="{{ .Site.Params.giscus.emitMetadata | default "0" }}"
