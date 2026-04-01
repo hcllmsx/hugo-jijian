@@ -42,7 +42,7 @@ features = [
   "pagefind",
   "giscus"
 ]
-min_version = "0.146.0"
+min_version = "0.150.1"
 
 [author]
   name = "hcllmsx"

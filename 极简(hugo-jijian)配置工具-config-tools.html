@@ -1053,7 +1053,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="defaultImage">列表悬停默认封面图 <span class="config-key">(params.defaultImage)</span></label>
+                        <label for="defaultImage">列表悬停默认封面图 <span
+                                class="config-key">(params.defaultImage)</span></label>
                         <div class="path-input-wrapper">
                             <input type="text" id="defaultImage" placeholder="文章没有手动指定封面图时的竖版保底图路径">
                             <button type="button" class="path-fix-btn"
@@ -1064,7 +1065,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="topDefaultImage">文章顶部默认封面图 <span class="config-key">(params.topDefaultImage)</span></label>
+                        <label for="topDefaultImage">文章顶部默认封面图 <span
+                                class="config-key">(params.topDefaultImage)</span></label>
                         <div class="path-input-wrapper">
                             <input type="text" id="topDefaultImage" placeholder="文章没有手动指定顶部封面图时的横版保底图路径">
                             <button type="button" class="path-fix-btn"
@@ -1306,7 +1308,8 @@
 
                     <div class="form-group" id="summaryLengthGroup" style="display: none;">
                         <label for="summaryLength">摘要长度 <span class="config-key">(summaryLength)</span></label>
-                        <input type="number" id="summaryLength" value="20" placeholder="如果是中文，建议值：20" oninput="previewConfig()">
+                        <input type="number" id="summaryLength" value="20" placeholder="如果是中文，建议值：20"
+                            oninput="previewConfig()">
                     </div>
 
                     <div class="form-group">
@@ -1681,8 +1684,8 @@
                             <label for="depEdgeOne">部署在腾讯 EdgeOne Pages</label>
                         </div>
                         <div id="edgeoneSettings" style="display: none; margin-top: 8px;">
-                            <label for="hugoVersion">Hugo 版本号 (如 0.158.0)</label>
-                            <input type="text" id="hugoVersion" value="0.158.0" placeholder="0.158.0">
+                            <label for="hugoVersion">Hugo 版本号 (如 0.159.1)</label>
+                            <input type="text" id="hugoVersion" value="0.159.1" placeholder="0.159.1">
                             <p class="hint-text">自动生成下载安装指令</p>
                         </div>
                     </div>
@@ -2310,7 +2313,7 @@
             yaml += `theme: jijian\n\n`;
             yaml = addField(yaml, 'defaultContentLanguage', getValue('defaultContentLanguage'));
             yaml = addField(yaml, 'languageCode', getValue('languageCode'));
-            
+
             // 自动处理 CJK 语言支持
             const lang = getValue('defaultContentLanguage');
             if (lang === 'zh-cn' || lang === 'zh-tw') {
@@ -2886,7 +2889,7 @@ export default middleware;
 
         // 生成 edgeone.json 内容
         function generateEdgeOneJson() {
-            const version = document.getElementById('hugoVersion')?.value || '0.158.0';
+            const version = document.getElementById('hugoVersion')?.value || '0.159.1';
             const name = document.getElementById('packageName')?.value || '';
 
             const edgeoneData = {

@@ -5,7 +5,7 @@ import yaml from 'js-yaml';
 
 const PUBLIC_DIR = path.resolve('public');
 const CONFIG_FILE = path.resolve('hugo.yaml');
-const ENCRYPT_MARKER = 'id="encrypt-container"';
+const ENCRYPT_MARKER = 'encrypt-container';
 
 // 读取配置
 let authDuration = 3600; // 默认 1 小时
@@ -54,11 +54,11 @@ function processFile(filePath) {
 
   console.log(`[Encrypt] Processing: ${filePath}`);
 
-  // 增强的正则，捕获密码、i18n 标签和待加密内容
-  const regex = /<div id="encrypt-container">[\s\S]*?<div id="hcl-pw-raw"[^>]*>([^<]*)<\/div>\s*(<div id="hcl-i18n"[\s\S]*?><\/div>)([\s\S]+?)<div id="hcl-content-end"[^>]*><\/div>[\s\S]*?<\/div>/g;
+  // 增强的正则，支持有引号、无引号以及单引号的属性匹配，同时兼容压缩后的空白符
+  const regex = /<div\s+id=["']?encrypt-container["']?>[\s\S]*?<div\s+id=["']?hcl-pw-raw["']?[^>]*>([^<]*)<\/div>\s*(<div\s+id=["']?hcl-i18n["']?[\s\S]*?><\/div>)([\s\S]+?)<div\s+id=["']?hcl-content-end["']?[^>]*><\/div>[\s\S]*?<\/div>/g;
 
   function getAttr(tag, attr) {
-    const m = new RegExp(`${attr}="([^"]*)"`).exec(tag);
+    const m = new RegExp(`${attr}=["']?([^"'\s>]*)["']?`).exec(tag);
     return m ? m[1] : '';
   }
 
