@@ -6,7 +6,7 @@
 
 ## 特性概览
 
-- **可视化配置工具** — `[极简(hugo-jijian)配置工具](https://ihcll.cn/hugo-jijian-config-tools/)`
+- **可视化配置工具** — [极简(hugo-jijian)配置工具](https://ihcll.cn/hugo-jijian-config-tools/)
 - **Pagefind** 搜索 — 高性能静态搜索
 - **导航菜单增强** — 支持子菜单导航，优化移动端体验
 - **文章列表置顶功能** — 支持置顶文章，数字越小越靠前，仅支持正整数
