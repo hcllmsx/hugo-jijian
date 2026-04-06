@@ -59,8 +59,7 @@
     left: 50%;
     transform: translateX(-50%);
     opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    display: none;
     z-index: 1000;
     margin-top: 10px;
     pointer-events: none;
@@ -75,7 +74,7 @@
 
 .social-icon-container:hover .social-icon-hover-image {
     opacity: 1;
-    visibility: visible;
+    display: block;
     pointer-events: auto;
 }
 

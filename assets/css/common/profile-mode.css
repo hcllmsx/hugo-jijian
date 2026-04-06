@@ -6,8 +6,24 @@
 
 .main .profile {
     align-items: center;
-    flex: 1;
+    flex: 1 1 auto;
     text-align: center;
+    /* 防止内部绝对定位元素（如 hover 图片）影响 body 的 scrollHeight */
+    overflow: hidden;
+}
+
+/* 首页 profile 模式：允许 main 被压缩，避免小视口出现双滚动条 */
+body.list:has(.profile) .main {
+    flex: 1 1 auto;
+}
+
+/* 当整个页面高度不足时，让内容自然贴合，不撑出多余空白 */
+/* 强制 body 不成为独立滚动容器，确保只有一个滚动条 */
+body.home-profile {
+    height: 100vh;
+    height: 100dvh;
+    overflow-x: clip !important;
+    overflow-y: visible !important;
 }
 
 .profile .profile_inner {
@@ -15,6 +31,9 @@
     flex-direction: column;
     align-items: center;
     gap: 10px;
+    /* 使用弹性 padding 来保证上下留白，在小视口时自动压缩 */
+    padding-top: clamp(10px, 5vh, 50px);
+    padding-bottom: clamp(10px, 3vh, 30px);
 }
 
 .profile img {

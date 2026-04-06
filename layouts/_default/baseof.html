@@ -17,9 +17,9 @@
 </head>
 
 {{- if (or (ne .Kind `page` ) (eq .Layout `archives`) (eq .Layout `search`)) }}
-<body class="list" id="top">
+<body class="list {{ if .IsHome }}home-profile{{ end }}" id="top">
 {{- else }}
-<body id="top">
+<body class="{{ if .IsHome }}home-profile{{ end }}" id="top">
 {{- end }}
     {{ partialCached "header.html" . .Page -}}
     <main class="main">
