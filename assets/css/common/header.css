@@ -94,24 +94,44 @@ button.menu-toggle {
     align-items: center;
     line-height: 1.2;
     padding-bottom: 4px;
-    transition: text-shadow 0.2s ease;
     font-weight: 500;
     width: auto;
     white-space: nowrap;
 }
 
-#menu a:hover {
-    text-shadow: 0 0 1px currentColor, 0 0 1px currentColor;
+/* 菜单文字 span 需要 position:relative 来承载 ::after 下划线 */
+#menu > li > a > span {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 2px;
+}
+
+/* 下划线动画 - 放在 span 上，只覆盖文字，不延伸到箭头 */
+#menu > li > a > span::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.3s ease;
+}
+
+/* 鼠标悬停在整个 <a> 上时，span 的下划线生长 */
+#menu > li > a:hover > span::after {
+    transform: scaleX(1);
 }
 
 #menu .active {
     font-weight: 500;
-    border-bottom: 2px solid currentColor;
-    padding-bottom: 4px;
 }
 
-#menu .active:hover {
-    text-shadow: 0 0 1px currentColor, 0 0 1px currentColor;
+/* 当前活跃菜单项始终显示下划线 */
+#menu > li > a > span.active::after {
+    transform: scaleX(1);
 }
 
 /* Submenu Styles */
@@ -123,52 +143,69 @@ button.menu-toggle {
     display: none;
     position: absolute;
     top: 100%;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 1000;
     background: transparent;
     border: none;
     box-shadow: none;
     min-width: auto;
     list-style: none;
-    margin: 0;
+    margin: -8px 0 0 0;
     padding: 0;
     white-space: nowrap;
-    text-align: left;
     line-height: 1.2;
+    /* 子菜单水平排列 */
+    flex-direction: row;
+    align-items: center;
+    gap: var(--gap);
 }
 
 .submenu-item {
-    margin: 4px 0;
-    display: block;
-    text-align: left;
+    display: inline-block;
     width: auto;
     padding: 0;
     height: auto;
+    margin: 0;
 }
 
-/* 关键修复：重置子菜单项的左边距 */
+/* 重置子菜单项的边距 */
 .submenu-item + .submenu-item {
     margin-inline-start: 0 !important;
-    margin-top: 6px;
+    margin-top: 0;
 }
 
 .submenu-item a {
-    display: block;
+    display: inline-flex;
+    align-items: center;
     padding: 0;
     font-size: 16px;
     color: var(--primary);
     text-decoration: none;
-    transition: text-shadow 0.2s ease;
     margin: 0;
-    width: 100%;
-    text-align: left;
+    width: auto;
     line-height: 1.2;
     padding-bottom: 4px;
     font-weight: 500;
+    position: relative;
 }
 
-.submenu-item a:hover {
-    text-shadow: 0 0 1px currentColor, 0 0 1px currentColor;
+/* 子菜单项也使用下划线动画 */
+.submenu-item a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.3s ease;
+}
+
+.submenu-item a:hover::after {
+    transform: scaleX(1);
 }
 
 .submenu-item .active {
@@ -177,18 +214,19 @@ button.menu-toggle {
     font-weight: 700;
 }
 
+/* 活跃子菜单项始终显示下划线 */
+.submenu-item a:has(.active)::after {
+    transform: scaleX(1);
+}
+
 .submenu-item span {
-    padding-left: 0px;
-    padding-right: 0px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
+    padding: 0;
+    margin: 0;
 }
 
 /* Show submenu on hover */
 #menu .has-children:hover > .submenu {
-    display: block;
+    display: flex;
 }
 
 /* 菜单遮罩样式 */
@@ -349,10 +387,32 @@ button.menu-toggle {
         display: none;
     }
     
-    /* 重置活动项样式 */
+    /* 重置活动项样式 - 移动端也用下划线代替加粗 */
     #menu .active {
-        border-bottom: none;
-        font-weight: 700;
+        border-bottom: 2px solid currentColor;
+        font-weight: inherit;
+    }
+    
+    /* 移动端禁用悬停下划线动画 */
+    #menu > li > a > span::after,
+    .submenu-item a::after {
+        display: none;
+    }
+    
+    /* 移动端子菜单恢复垂直排列，重置负边距 */
+    .submenu {
+        flex-direction: column;
+        gap: 0;
+        margin: 0;
+    }
+    
+    /* 移动端覆盖桌面端的 hover 规则，防止触摸时子菜单变成水平布局 */
+    #menu .has-children:hover > .submenu {
+        display: block;
+    }
+    
+    .submenu-item {
+        display: block;
     }
     
     /* 增强遮罩效果 */
