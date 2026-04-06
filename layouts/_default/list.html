@@ -45,26 +45,38 @@
 {{- $pages = where $pages "Params.hiddenInList" "ne" true }}
 {{- end }}
 
-{{- /* 针对 posts 目录，按置顶权重和最后修改时间排序 */ -}}
-{{- if eq .Section "posts" }}
-  {{- $pin := where $pages "Params.pin" "gt" 0 }}
-  {{- $normal := $pages | complement $pin }}
-
-  {{- if site.Params.ShowLastMod | default true }}
-    {{- $pin = $pin.ByLastmod.Reverse }}
-    {{- $normal = $normal.ByLastmod.Reverse }}
-  {{- else }}
-    {{- $pin = $pin.ByDate.Reverse }}
-    {{- $normal = $normal.ByDate.Reverse }}
-  {{- end }}
-  {{- $pin = sort $pin "Params.pin" "asc" }}
-  {{- $pages = $pin | append $normal }}
+{{- if .IsHome }}
+  {{- $pages = where site.RegularPages "Type" "in" (site.Params.mainSections | default (slice "posts")) }}
+  {{- $pages = where $pages "Params.hiddenInHomeList" "ne" true }}
+  {{- $pages = where $pages "Params.hiddenInList" "ne" true }}
 {{- end }}
 
-{{- if .IsHome }}
-{{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}
-{{- $pages = where $pages "Params.hiddenInHomeList" "ne" true }}
-{{- $pages = where $pages "Params.hiddenInList" "ne" true }}
+{{- /* 针对首页和 posts 目录，按置顶权重和最后修改时间排序 */ -}}
+{{- if or .IsHome (eq .Section "posts") }}
+  {{- if site.Params.ShowLastMod | default true }}
+    {{- $pages = $pages.ByLastmod.Reverse }}
+  {{- else }}
+    {{- $pages = $pages.ByDate.Reverse }}
+  {{- end }}
+
+  {{- /* 定义是否为 Blog 模式首页（即没开启门户模式，也没禁用首篇特殊样式） */ -}}
+  {{- $isBlogMode := and .IsHome (not site.Params.disableSpecial1stPost) (not site.Params.portalMode) }}
+
+  {{- if $isBlogMode }}
+    {{- /* Blog Mode: 选出绝对最新的一篇作为首篇 */ -}}
+    {{- $latest := first 1 $pages }}
+    {{- $rest := $pages | complement $latest }}
+    {{- $pin := where $rest "Params.pin" "gt" 0 }}
+    {{- $normal := $rest | complement $pin }}
+    {{- $pin = sort $pin "Params.pin" "asc" }}
+    {{- $pages = $latest | append ($pin | append $normal) }}
+  {{- else }}
+    {{- /* Portal Mode 或其他列表: 置顶文章排在最前面 */ -}}
+    {{- $pin := where $pages "Params.pin" "gt" 0 }}
+    {{- $normal := $pages | complement $pin }}
+    {{- $pin = sort $pin "Params.pin" "asc" }}
+    {{- $pages = $pin | append $normal }}
+  {{- end }}
 {{- end }}
 
 {{- $paginator := .Paginate $pages }}

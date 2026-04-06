@@ -51,6 +51,7 @@
 
 .social-icons .social-icon-no-link {
     cursor: default;
+    color: var(--primary);
 }
 
 .social-icon-hover-image {
@@ -63,13 +64,46 @@
     z-index: 1000;
     margin-top: 10px;
     pointer-events: none;
+    /* 增加动画效果 */
+    animation: fadeInScale 0.2s ease-out;
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: translateX(-50%) scale(0.95); }
+    to { opacity: 1; transform: translateX(-50%) scale(1); }
 }
 
 .social-icon-hover-image img {
-    max-width: 323px;
-    max-height: 323px;
+    /* 允许图片根据高度自动缩小，且不超出视口高度的 45% */
+    max-width: min(323px, 90vw);
+    max-height: min(323px, 45vh);
+    object-fit: contain;
     border-radius: 4px !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background: var(--theme); /* 确保背景色统一 */
+}
+
+/* 针对矮视口屏幕的避障优化（调整至 1100px 阈值，涵盖大部分笔记本屏幕） */
+@media screen and (max-height: 1100px) {
+    .social-icon-hover-image {
+        /* 在高度不足时，改为向上弹出，避开页脚和底部 */
+        top: auto;
+        bottom: 120%; 
+        margin-top: 0;
+        margin-bottom: 5px;
+        animation: fadeInScaleUp 0.2s ease-out;
+    }
+
+    @keyframes fadeInScaleUp {
+        from { opacity: 0; transform: translateX(-50%) scale(0.95); }
+        to { opacity: 1; transform: translateX(-50%) scale(1); }
+    }
+
+    .social-icon-hover-image img {
+        /* 在 1100px 以下就开始进行更积极的弹性缩放 */
+        max-height: 35vh; 
+        max-width: min(323px, 85vw);
+    }
 }
 
 .social-icon-container:hover .social-icon-hover-image {
