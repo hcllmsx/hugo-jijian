@@ -99,9 +99,10 @@
             {{- $has_children := gt (len .Children) 0 }}
             <li class="menu-item{{ if $has_children }} has-children{{ end }}">
                 {{- $is_link := and .URL (not (strings.HasPrefix .URL "javascript:")) }}
+                {{- $is_external := or (findRE "://" .URL) .Params.external }}
                 <a {{ if $is_link }}href="{{ .URL | relLangURL }}"{{ else }}style="cursor: default;"{{ end }} title="{{ .Title | default .Name }} {{- cond $is_search (" (Alt + Q)" | safeHTMLAttr) ("" | safeHTMLAttr ) }}"
                 {{- cond $is_search (" accesskey=q" | safeHTMLAttr) ("" | safeHTMLAttr ) }}
-                {{- cond (findRE "://" .URL) (" target='_blank' rel='noopener noreferrer'" | safeHTMLAttr) ("" | safeHTMLAttr ) }}>
+                {{- if $is_external }} target="_blank" rel="noopener noreferrer"{{ end }}>
                     <span {{- if and .URL (eq $menu_item_url $page_url) }} class="active" {{- end }}>
                         {{- .Pre }}
                         {{- .Name -}}
@@ -111,7 +112,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
-                    {{- else if (findRE "://" .URL) }}&nbsp;
+                    {{- else if $is_external }}&nbsp;
                     <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
                         stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
                         <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
@@ -126,14 +127,15 @@
                     {{- $submenu_item_url := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL) ) | relLangURL }}
                     <li class="submenu-item">
                         {{- $is_sub_link := and .URL (not (strings.HasPrefix .URL "javascript:")) }}
+                        {{- $is_sub_external := or (findRE "://" .URL) .Params.external }}
                         <a {{ if $is_sub_link }}href="{{ .URL | relLangURL }}"{{ else }}style="cursor: default;"{{ end }} title="{{ .Title | default .Name }}"
-                        {{- cond (findRE "://" .URL) (" target='_blank' rel='noopener noreferrer'" | safeHTMLAttr) ("" | safeHTMLAttr ) }}>
+                        {{- if $is_sub_external }} target="_blank" rel="noopener noreferrer"{{ end }}>
                             <span {{- if and .URL (eq $submenu_item_url $page_url) }} class="active" {{- end }}>
                                 {{- .Pre }}
                                 {{- .Name -}}
                                 {{- .Post -}}
                             </span>
-                            {{- if (findRE "://" .URL) }}&nbsp;
+                            {{- if $is_sub_external }}&nbsp;
                             <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
                                 stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="10" width="10">
                                 <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
