@@ -1,0 +1,22 @@
+{
+  "name": "{{ .Site.Title }}",
+  "short_name": "{{ site.Params.label.text | default .Site.Title }}",
+  "start_url": "{{ .Site.BaseURL }}",
+  "display": "standalone",
+  "background_color": "{{ site.Params.assets.theme_color | default `#ffffff` }}",
+  "theme_color": "{{ site.Params.assets.theme_color | default `#2e2e33` }}",
+  "icons": [
+    {
+      "src": "{{ (site.Params.assets.manifest_icon_192 | default site.Params.assets.apple_touch_icon) | relURL }}",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "{{ (site.Params.assets.manifest_icon_512 | default site.Params.assets.apple_touch_icon) | relURL }}",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

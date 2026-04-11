@@ -101,6 +101,7 @@
 <link rel="mask-icon" href="{{ site.Params.assets.safari_pinned_tab | default "safari-pinned-tab.svg" | relURL }}">
 <meta name="theme-color" content="{{ site.Params.assets.theme_color | default "#2e2e33" }}">
 <meta name="msapplication-TileColor" content="{{ site.Params.assets.msapplication_TileColor | default "#2e2e33" }}">
+<link rel="manifest" href="{{ site.Params.assets.manifest | default "manifest.json" | relURL }}">
 
 {{- /* RSS */}}
 {{ range .AlternativeOutputFormats -}}
