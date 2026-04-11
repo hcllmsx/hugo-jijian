@@ -161,6 +161,17 @@ button.menu-toggle {
     gap: var(--gap);
 }
 
+/* 增加透明桥接伪元素，解决父子菜单切换时的悬停丢失问题 */
+.submenu::before {
+    content: "";
+    position: absolute;
+    top: -20px; /* 向上延伸到父菜单区域 */
+    left: 0;
+    right: 0;
+    height: 20px; /* 覆盖间隙 */
+    background: transparent;
+}
+
 .submenu-item {
     display: inline-block;
     width: auto;
