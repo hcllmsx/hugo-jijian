@@ -26,6 +26,7 @@
 
 ### 2026-04-11
 - 添加PWA支持。详情可在wiki文档：[03-配置详解](https://ihcll.cn/posts/jijian-wiki/wiki-03-peizhixiangjie/) 中搜索相关内容查看。
+- `极简(hugo-jijian)配置工具`同步更新支持PWA相关配置。
 
 ### 2026-04-07
 - 修复了在不配置某一菜单的url的情况下，菜单栏的样式问题。
