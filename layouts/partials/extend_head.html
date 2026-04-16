@@ -4,7 +4,9 @@
 <head></head> section of every page. */ -}}
 {{- /* Can be overwritten by partial with the same name in the global layouts. */ -}}
 
+{{- if not hugo.IsServer }}
 <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+{{- end }}
 
 <style>
     /* 鼠标悬停封面图预览 */

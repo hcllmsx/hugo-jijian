@@ -123,4 +123,42 @@
     })();
 </script>
 
+<script>
+    /* iOS 网易云音乐 iframe 降级处理
+     * iOS WebKit 不会将父页面的 upgrade-insecure-requests CSP 传递给跨域 iframe，
+     * 导致网易云播放器内部的 HTTP 请求被拦截，播放器无法显示。
+     * 此脚本检测 iOS 设备，自动将 music.163.com 的 iframe 替换为跳转链接。 */
+    (function () {
+        var ua = navigator.userAgent;
+        var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        if (!isIOS) return;
+
+        document.querySelectorAll('iframe').forEach(function (iframe) {
+            var src = iframe.getAttribute('src') || '';
+            if (src.indexOf('music.163.com/outchain/player') === -1) return;
+
+            // 从 iframe src 中提取歌曲/歌单 id 和 type
+            var idMatch = src.match(/[?&]id=(\d+)/);
+            var typeMatch = src.match(/[?&]type=(\d+)/);
+            var id = idMatch ? idMatch[1] : '';
+            var type = typeMatch ? typeMatch[1] : '2';
+
+            // 构造网易云音乐链接
+            var link = 'https://music.163.com/#/song?id=' + id;
+            if (type === '0') link = 'https://music.163.com/#/playlist?id=' + id;
+            else if (type === '1') link = 'https://music.163.com/#/album?id=' + id;
+
+            // 创建降级提示元素
+            var fallback = document.createElement('a');
+            fallback.href = link;
+            fallback.target = '_blank';
+            fallback.rel = 'noopener noreferrer';
+            fallback.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;max-width:330px;margin:0 auto;background:linear-gradient(135deg,#e72d2d,#c62f2f);color:#fff;border-radius:10px;text-decoration:none;font-size:14px;font-weight:500;box-shadow:0 2px 8px rgba(199,29,29,0.3);';
+            fallback.innerHTML = '<span style="font-size:22px;color:#fff">♪</span><span style="text-align:center;line-height:1.6">iOS 暂不支持嵌入播放<br>点击前往网易云音乐</span>';
+
+            iframe.parentNode.replaceChild(fallback, iframe);
+        });
+    })();
+</script>
+
 {{- /* Footer custom content area end */ -}}
