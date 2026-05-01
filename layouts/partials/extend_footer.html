@@ -161,4 +161,22 @@
     })();
 </script>
 
+{{- /* 仅在有媒体短代码的页面加载核心库 */ -}}
+{{- if .Store.Get "loadMedia" -}}
+{{- $xgplayer_css := resources.Get "vendor/xgplayer/xgplayer.min.css" | fingerprint -}}
+<link rel="stylesheet" href="{{ $xgplayer_css.RelPermalink }}">
+{{- $xgplayer_music_css := resources.Get "vendor/xgplayer/xgplayer-music.min.css" | fingerprint -}}
+<link rel="stylesheet" href="{{ $xgplayer_music_css.RelPermalink }}">
+{{- $media_player_css := resources.Get "css/common/media-player.css" | fingerprint -}}
+<link rel="stylesheet" href="{{ $media_player_css.RelPermalink }}">
+{{- $xgplayer := resources.Get "vendor/xgplayer/xgplayer.min.js" | fingerprint -}}
+<script src="{{ $xgplayer.RelPermalink }}"></script>
+{{- $xgplayer_hls := resources.Get "vendor/xgplayer/xgplayer-hls.min.js" | fingerprint -}}
+<script src="{{ $xgplayer_hls.RelPermalink }}"></script>
+{{- $xgplayer_music := resources.Get "vendor/xgplayer/xgplayer-music.min.js" | fingerprint -}}
+<script src="{{ $xgplayer_music.RelPermalink }}"></script>
+{{- $media_player_js := resources.Get "js/media-player.js" | resources.Minify | fingerprint -}}
+<script src="{{ $media_player_js.RelPermalink }}"></script>
+{{- end -}}
+
 {{- /* Footer custom content area end */ -}}

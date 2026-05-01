@@ -1,0 +1,66 @@
+{{- $src := .Get "src" -}}
+{{- $cover := .Get "cover" | default "" -}}
+{{- $title := .Get "title" | default (path.Base $src) -}}
+{{- $autoplay := .Get "autoplay" | default false -}}
+{{- $muted := .Get "muted" | default false -}}
+{{- $loop := .Get "loop" | default false -}}
+{{- $id := printf "media-%d" .Ordinal -}}
+{{- $type := .Get "type" -}}
+{{- $srcLower := lower $src -}}
+
+{{- if not $type -}}
+    {{- if or
+        (strings.HasSuffix $srcLower ".mp3")
+        (strings.HasSuffix $srcLower ".m4a")
+        (strings.HasSuffix $srcLower ".aac")
+        (strings.HasSuffix $srcLower ".wav")
+        (strings.HasSuffix $srcLower ".ogg")
+        (strings.HasSuffix $srcLower ".oga")
+        (strings.HasSuffix $srcLower ".flac")
+    -}}
+        {{- $type = "audio" -}}
+    {{- else -}}
+        {{- $type = "video" -}}
+    {{- end -}}
+{{- end -}}
+
+{{- .Page.Store.Set "loadMedia" true -}}
+
+{{- if and $src (not (hasPrefix $src "http")) (not (hasPrefix $src "/")) -}}
+    {{- $src = printf "/%s" $src -}}
+{{- end -}}
+{{- if and $cover (not (hasPrefix $cover "http")) (not (hasPrefix $cover "/")) -}}
+    {{- $cover = printf "/%s" $cover -}}
+{{- end -}}
+
+{{- $isHls := or (strings.HasSuffix $srcLower ".m3u8") (eq (.Get "hls") "true") -}}
+
+<div class="media-shortcode media-shortcode--{{ $type }}"
+     data-media="true"
+     data-src="{{ $src }}"
+     data-cover="{{ $cover }}"
+     data-title="{{ $title }}"
+     data-type="{{ $type }}"
+     data-autoplay="{{ $autoplay }}"
+     data-muted="{{ $muted }}"
+     data-loop="{{ $loop }}"
+     data-hls="{{ $isHls }}">
+    {{- if eq $type "audio" -}}
+        <div class="media-audio-shell">
+            <div class="media-audio-cover{{ if $cover }} media-audio-cover--image{{ end }}"
+                 {{ if $cover }}style="--media-audio-cover: url('{{ $cover }}');"{{ end }}>
+                {{- if not $cover -}}
+                    <span class="media-audio-cover__label">{{ slicestr $title 0 1 }}</span>
+                {{- end -}}
+            </div>
+            <div class="media-audio-main">
+                <div class="media-audio-title" title="{{ $title }}">{{ $title }}</div>
+                <div id="{{ $id }}" class="media-player"></div>
+            </div>
+        </div>
+    {{- else -}}
+        <div id="{{ $id }}"
+             class="media-player{{ if $cover }} media-player--has-cover{{ end }}"
+             {{ if $cover }}style="--media-cover: url('{{ $cover }}');"{{ end }}></div>
+    {{- end -}}
+</div>

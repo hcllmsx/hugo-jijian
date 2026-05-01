@@ -1,0 +1,487 @@
+.media-shortcode {
+    margin: 1.5rem 0;
+}
+
+.media-player {
+    width: 100%;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    background: #111;
+}
+
+.media-shortcode--video .media-player {
+    aspect-ratio: 16 / 9;
+}
+
+.media-shortcode--audio {
+    margin: 0;
+    border-radius: 0;
+    overflow: visible;
+    background: transparent;
+    box-shadow: none;
+}
+
+.media-audio-shell {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 0;
+    padding: 0;
+    align-items: stretch;
+    border-radius: 14px;
+    overflow: visible;
+    background: linear-gradient(135deg, #f7f7f8, #eceef1);
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+}
+
+.media-audio-cover {
+    border-radius: 0;
+    width: 112px;
+    min-width: 112px;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    min-height: 0;
+    background: linear-gradient(135deg, #20242a, #4f5b6b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    justify-self: start;
+    color: #fff;
+    overflow: hidden;
+    margin-right: 0;
+    box-shadow: none;
+}
+
+.media-audio-cover--image {
+    background-image: var(--media-audio-cover);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.media-audio-cover__label {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+}
+
+.media-audio-main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    border-radius: 0;
+    background: none !important;
+    background-image: none !important;
+    box-shadow: none;
+    padding: 4px 8px 6px 0;
+    overflow: visible;
+}
+
+.media-audio-title {
+    margin: 0;
+    padding: 0 14px 1px;
+    margin-top: 3px;
+    font-size: 1.2rem;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #0f172a;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transform: translateY(6px);
+}
+
+.media-shortcode--audio .media-player {
+    height: 74px;
+    min-height: 74px;
+    display: flex;
+    align-items: center;
+    box-shadow: none;
+    background: transparent;
+    border-radius: 0;
+    overflow: visible;
+}
+
+.media-shortcode--audio .media-player:not([data-player-ready="true"]) {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.media-shortcode--audio .media-player[data-player-ready="true"] {
+    visibility: visible;
+    opacity: 1;
+}
+
+.media-player--has-cover:not([data-player-ready="true"])::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--media-cover);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    pointer-events: none;
+}
+
+.media-player--has-cover:not([data-player-ready="true"])::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.32));
+    pointer-events: none;
+}
+
+.media-player[data-player-ready="true"]::before,
+.media-player[data-player-ready="true"]::after {
+    display: none;
+}
+
+.media-player .xgplayer {
+    border-radius: inherit;
+}
+
+.media-shortcode--audio .media-player.xgplayer.xgplayer-music,
+.media-shortcode--audio .media-player.xgplayer.xgplayer-music > xg-controls.xgplayer-controls,
+.media-shortcode--audio .media-player.xgplayer.xgplayer-music > xg-controls.xgplayer-controls > xg-inner-controls,
+.media-shortcode--audio .media-player.xgplayer.xgplayer-music > xg-controls.xgplayer-controls .xg-left-grid,
+.media-shortcode--audio .media-player.xgplayer.xgplayer-music > xg-controls.xgplayer-controls .xg-center-grid,
+.media-shortcode--audio .media-player.xgplayer.xgplayer-music > xg-controls.xgplayer-controls .xg-right-grid {
+    background: none !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+.media-shortcode--audio .media-player .xgplayer {
+    min-height: 88px;
+    width: 100%;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music .xgplayer-controls,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music .xg-inner-controls,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music .xg-center-grid,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music .xg-left-grid,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music .xg-right-grid {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-video-container {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+}
+
+.media-shortcode--audio .media-player .xgplayer-cover,
+.media-shortcode--audio .media-player .xgplayer-poster {
+    display: none !important;
+}
+
+.media-shortcode--audio .media-player .xgplayer-controls {
+    background: transparent;
+    backdrop-filter: none;
+    border: 0;
+    border-radius: 0;
+    padding: 6px 0;
+    background-image: none;
+    bottom: 10px;
+}
+
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music .xgplayer-controls {
+    border: 0 !important;
+    border-radius: 0 !important;
+    backdrop-filter: none !important;
+}
+
+.media-shortcode--audio .media-player .xgplayer-progress {
+    margin-top: 2px;
+}
+
+.media-shortcode--audio .media-player .xgplayer-name {
+    display: none !important;
+}
+
+.media-shortcode--audio .media-player .xgplayer xg-icon,
+.media-shortcode--audio .media-player .xgplayer xg-icon svg,
+.media-shortcode--audio .media-player .xgplayer xg-icon path,
+.media-shortcode--audio .media-player .xgplayer xg-icon circle,
+.media-shortcode--audio .media-player .xgplayer xg-icon polygon,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon .xgplayer-icon,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music .xgplayer-time,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music .xgplayer-time .time-duration {
+    color: #0f172a !important;
+    fill: #0f172a !important;
+    stroke: #0f172a !important;
+}
+
+.media-shortcode--audio .media-player .xgplayer-controls,
+.media-shortcode--audio .media-player .xgplayer-controls .xg-inner-controls,
+.media-shortcode--audio .media-player .xgplayer-controls .xg-left-grid,
+.media-shortcode--audio .media-player .xgplayer-controls .xg-center-grid,
+.media-shortcode--audio .media-player .xgplayer-controls .xg-right-grid {
+    color: #0f172a;
+}
+
+.media-shortcode--audio .media-player .xgplayer-time,
+.media-shortcode--audio .media-player .xgplayer-time .time-duration {
+    color: #334155;
+}
+
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon svg,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon svg *,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon path,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon circle,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon polygon,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon rect,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon line {
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+.media-shortcode--audio .media-player .xgplayer-progress-inner {
+    background: rgba(15, 23, 42, 0.12);
+}
+
+.media-shortcode--audio .media-player .xgplayer-progress-cache {
+    background: rgba(59, 130, 246, 0.20);
+}
+
+.media-shortcode--audio .media-player .xgplayer-progress-played {
+    background: linear-gradient(90deg, #2563eb 0%, #06b6d4 100%);
+}
+
+.media-shortcode--audio .media-player .xgplayer-progress-btn {
+    background: rgba(37, 99, 235, 0.22);
+    border-color: rgba(37, 99, 235, 0.08);
+    box-shadow: 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+.media-shortcode--audio .media-player .xgplayer-progress-btn::before {
+    background: #ffffff;
+}
+
+.media-shortcode--audio .media-player .xgplayer-progress-point,
+.media-shortcode--audio .media-player .xgplayer-tips {
+    background: rgba(15, 23, 42, 0.82);
+    color: #f8fafc;
+}
+
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music .xgplayer-slider {
+    background: rgba(15, 23, 42, 0.86) !important;
+}
+
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music .xgplayer-bar {
+    background: rgba(255, 255, 255, 0.28) !important;
+}
+
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music .xgplayer-drag {
+    background: #2563eb !important;
+}
+
+.media-shortcode--audio .media-player .xgplayer xg-trigger,
+.media-shortcode--audio .media-player .xgplayer xg-prompt,
+.media-shortcode--audio .media-player .xgplayer xg-error,
+.media-shortcode--audio .media-player .xgplayer .xg-playbackrate.xg-top-note {
+    display: none !important;
+}
+
+.media-shortcode--audio .media-player .xgplayer .xgplayer-play svg path,
+.media-shortcode--audio .media-player .xgplayer .xgplayer-volume svg path,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon.xgplayer-play svg path,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon.xgplayer-volume svg path,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon.xgplayer-play [fill],
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon.xgplayer-volume [fill] {
+    fill: #0f172a !important;
+    stroke: #0f172a !important;
+}
+
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon.xgplayer-play,
+.media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon.xgplayer-volume {
+    color: #0f172a !important;
+    fill: #0f172a !important;
+    stroke: #0f172a !important;
+}
+
+:root[data-theme="dark"] .media-shortcode--audio {
+    background: transparent;
+    box-shadow: none;
+}
+
+:root[data-theme="dark"] .media-audio-cover:not(.media-audio-cover--image) {
+    background: linear-gradient(135deg, #11161c, #2c3643);
+}
+
+:root[data-theme="dark"] .media-audio-cover--image {
+    background-image: var(--media-audio-cover);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+:root[data-theme="dark"] .media-audio-shell {
+    background: linear-gradient(135deg, #22262b, #161a1f);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="dark"] .media-audio-main {
+    background: none !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .media-audio-title {
+    color: #f8fafc;
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-controls {
+    background: transparent;
+    border-color: transparent;
+    background-image: none;
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-name {
+    color: #f8fafc;
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer xg-icon,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer xg-icon svg,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer xg-icon path,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer xg-icon circle,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer xg-icon polygon,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon .xgplayer-icon,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer.xgplayer-music .xgplayer-time,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer.xgplayer-music .xgplayer-time .time-duration {
+    color: #f8fafc !important;
+    fill: #f8fafc !important;
+    stroke: #f8fafc !important;
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-controls,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-controls .xg-inner-controls,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-controls .xg-left-grid,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-controls .xg-center-grid,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-controls .xg-right-grid {
+    color: #f8fafc;
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-time,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-time .time-duration {
+    color: rgba(248, 250, 252, 0.92);
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-progress-inner {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-progress-cache {
+    background: rgba(125, 211, 252, 0.22);
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-progress-played {
+    background: linear-gradient(90deg, #60a5fa 0%, #22d3ee 100%);
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-progress-btn {
+    background: rgba(96, 165, 250, 0.22);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 1px rgba(96, 165, 250, 0.24);
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-progress-point,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer-tips {
+    background: rgba(2, 6, 23, 0.88);
+    color: #f8fafc;
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer.xgplayer-music .xgplayer-slider {
+    background: rgba(2, 6, 23, 0.92) !important;
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer.xgplayer-music .xgplayer-bar {
+    background: rgba(255, 255, 255, 0.26) !important;
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer.xgplayer-music .xgplayer-drag {
+    background: #60a5fa !important;
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer .xgplayer-play svg path,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer .xgplayer-volume svg path,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon.xgplayer-play svg path,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon.xgplayer-volume svg path,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon.xgplayer-play [fill],
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon.xgplayer-volume [fill] {
+    fill: #f8fafc !important;
+    stroke: #f8fafc !important;
+}
+
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon.xgplayer-play,
+:root[data-theme="dark"] .media-shortcode--audio .media-player .xgplayer.xgplayer-music xg-icon.xgplayer-volume {
+    color: #f8fafc !important;
+    fill: #f8fafc !important;
+    stroke: #f8fafc !important;
+}
+
+:root[data-theme="dark"] .media-player {
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 768px) {
+    .media-audio-shell {
+        grid-template-columns: 88px minmax(0, 1fr);
+        gap: 0;
+        padding: 0;
+        height: 88px;
+        min-height: 88px;
+    }
+
+    .media-audio-cover {
+        width: 88px;
+        min-width: 88px;
+        aspect-ratio: 1 / 1;
+        height: 88px;
+        min-height: 88px;
+        align-self: start;
+        margin-right: 0;
+    }
+
+    .media-audio-main {
+        padding: 0 8px 0 0;
+        height: 88px;
+        min-height: 88px;
+        overflow: hidden;
+    }
+
+    .media-shortcode--audio .media-player {
+        height: 62px;
+        min-height: 62px;
+    }
+
+    .media-audio-title {
+        padding: 0 8px 2px;
+        margin-top: 0;
+        font-size: 0.95rem;
+        line-height: 1.25;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        transform: translateY(12px);
+    }
+
+    .media-shortcode--audio .media-player .xgplayer-controls {
+        bottom: 5px;
+    }
+}

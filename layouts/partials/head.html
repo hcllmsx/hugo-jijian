@@ -67,7 +67,9 @@
 {{- $theme_vars := (resources.Get "css/core/theme-vars.css") }}
 {{- $reset := (resources.Get "css/core/reset.css") }}
 {{- $media := (resources.Get "css/core/zmedia.css") }}
-{{- $common := (resources.Match "css/common/*.css") | resources.Concat "assets/css/common.css" }}
+{{- $common_files := resources.Match "css/common/*.css" -}}
+{{- $common_files = where $common_files "Name" "ne" "css/common/media-player.css" -}}
+{{- $common := $common_files | resources.Concat "assets/css/common.css" }}
 
 {{- /* markup.highlight.noClasses should be set to `false` */}}
 {{- $chroma_styles := (resources.Get "css/chroma/github.css") }}

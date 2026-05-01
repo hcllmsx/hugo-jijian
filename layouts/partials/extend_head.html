@@ -41,7 +41,7 @@
     }
 
     /* 暗色模式下调整边框和阴影 */
-    .dark .cover-preview {
+    :root[data-theme="dark"] .cover-preview {
         border-color: rgba(255, 255, 255, 0.1);
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5),
             0 4px 12px rgba(0, 0, 0, 0.35);
@@ -53,6 +53,7 @@
             display: none !important;
         }
     }
+
 </style>
 
 {{- /* Head custom content area end */ -}}
