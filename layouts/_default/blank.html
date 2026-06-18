@@ -1,6 +1,21 @@
 {{- define "main" }}
 
 <article class="post-single" data-pagefind-body>
+  {{- /* Pagefind 搜索结果缩略图：cover.image → defaultImage → favicon */ -}}
+  {{- $pfCoverImage := .Params.cover.image -}}
+  {{- if not $pfCoverImage }}{{ $pfCoverImage = site.Params.defaultImage }}{{ end -}}
+  {{- if not $pfCoverImage }}{{ $pfCoverImage = site.Params.assets.favicon }}{{ end -}}
+  {{- if $pfCoverImage -}}
+    {{- $pfCoverUrl := "" -}}
+    {{- $pfCoverRes := (.Resources.ByType "image").GetMatch (printf "*%s*" $pfCoverImage) -}}
+    {{- if $pfCoverRes -}}
+      {{- $pfCoverUrl = $pfCoverRes.Permalink -}}
+    {{- else -}}
+      {{- $pfCoverUrl = ($pfCoverImage | absURL) -}}
+    {{- end -}}
+    {{- $pfCoverAlt := .Params.cover.alt | default .Title -}}
+    <img src="{{ $pfCoverUrl }}" alt="{{ $pfCoverAlt }}" style="display:none" data-pagefind-meta="image[src], image_alt[alt]">
+  {{- end -}}
   <header class="post-header">
     <h1 class="post-title entry-hint-parent">
       {{ .Title }}
