@@ -215,10 +215,33 @@ function processFile(filePath) {
       }
 
       // 联动显示 TOC 和 Description
+      // 注意：加密时 .toc-sidebar 外层被 inline style display:none 隐藏，
+      // 内层 .toc 才是 partial 渲染的目录本体；这里两层都要恢复。
+      const tocSidebar = document.querySelector('.toc-sidebar');
+      if (tocSidebar) tocSidebar.style.display = '';
       const toc = document.querySelector('.toc, #toc, .post-toc');
       if (toc) toc.style.display = 'block';
       const desc = document.querySelector('.post-description');
       if (desc) desc.style.display = 'block';
+
+      // 重新绑定图片灯箱：medium-zoom 在 DOMContentLoaded 时已扫描并绑定一次，
+      // 但加密内容是动态注入的，那些 <img> 此时才出现，需要补一次绑定才能点击放大。
+      // 选择规则与 footer.html 中的初始化保持一致，避免行为不一致。
+      if (typeof mediumZoom !== 'undefined') {
+        const zoomableImages = Array.from(container.querySelectorAll('img')).filter(img =>
+          !img.closest('a') &&
+          !img.closest('.media-shortcode') &&
+          !img.classList.contains('in-text') &&
+          img.dataset.zoomable !== 'false'
+        );
+        if (zoomableImages.length > 0) {
+          mediumZoom(zoomableImages, {
+            margin: 24,
+            background: 'rgba(0, 0, 0, 0.8)',
+            scrollOffset: 0,
+          });
+        }
+      }
 
       // 动态挂载评论区（针对加密文章的 template 延迟加载方案）
       const commentsBlock = document.getElementById('comments');
