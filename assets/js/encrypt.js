@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 
 const PUBLIC_DIR = path.resolve('public');
 const CONFIG_FILE = path.resolve('hugo.yaml');
