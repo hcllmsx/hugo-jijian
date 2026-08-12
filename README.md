@@ -31,6 +31,12 @@
   - `.Language.LanguageCode` → `.Language.Locale`（`rss.xml`、`opengraph.html`）
 - **最低 Hugo 版本要求提升至 `0.158.0`**（原 `0.150.1`）。上述新字段由 Hugo v0.158.0 引入，更低版本会在构建时报错。
 - 站点配置中的 `languageCode` 键已被 Hugo 弃用，请改用 `locale`（例：`locale: zh-cn`）。`极简(hugo-jijian)配置工具`已同步更新。
+- **新增 Pagefind Component UI 搜索**，替代旧的 `PagefindUI` 搜索页。通过 `hugo.yaml` 中的 `params.pagefind.searchUI` 配置项选择模式：
+  - `modal`（默认）：Header 中显示放大镜图标按钮，点击弹出搜索弹窗，快捷键 `Ctrl + K`（Mac 上为 `Cmd + K`）打开
+  - `searchbox`：Header 中内嵌搜索框，聚焦展开、失焦缩回，支持清除按钮
+  - `off`：关闭搜索功能
+- Component UI 的暗黑模式自动跟随站点主题（`data-theme` ↔ `data-pf-theme` 同步）。
+- Component UI 中的提示文字（导航/选择/关闭等）统一由站点 `i18n` 翻译文件管理，通过 `<pagefind-config lang>` 元素在组件渲染前设置语言。
 
 ### 2026-06-18
 - 为blank页面添加 Pagefind 搜索结果缩略图

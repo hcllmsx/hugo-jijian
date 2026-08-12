@@ -51,6 +51,104 @@ button#theme-toggle {
     margin: auto 4px;
 }
 
+/* Pagefind Component UI 搜索 trigger（modal-trigger / searchbox） */
+.search-trigger {
+    margin: auto 4px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 26px;
+    line-height: var(--header-height);
+}
+
+/* 隐藏保留的 pagefind-modal-trigger（仅用于保留 Ctrl+K 快捷键与打开 modal 的逻辑） */
+.search-trigger-hidden {
+    display: none !important;
+}
+
+/* searchbox 内部元素垂直居中修复（抵消 .search-trigger 的 line-height 继承） */
+.pf-searchbox-input-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    line-height: normal !important;
+}
+.pf-searchbox-input {
+    width: 100% !important;
+}
+.pf-trigger-shortcut,
+.pf-trigger-shortcut .pf-trigger-key {
+    line-height: 1 !important;
+}
+pagefind-searchbox {
+    width: 220px !important;
+    transition: width 0.3s ease;
+}
+.pf-searchbox-input:focus,
+.pf-searchbox-input:focus-visible {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* searchbox 清除按钮（叉叉） */
+.pf-searchbox-clear {
+    position: absolute !important;
+    inset-inline-end: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 20px !important;
+    height: 20px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 50% !important;
+    color: var(--pf-text-muted) !important;
+    cursor: pointer !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 2 !important;
+    transition: background-color 0.15s, color 0.15s !important;
+}
+
+.pf-searchbox-clear[data-pf-visible="true"] {
+    display: flex !important;
+}
+
+.pf-searchbox-clear:hover {
+    background: var(--pf-hover) !important;
+    color: var(--pf-text) !important;
+}
+
+/* 清除按钮可见时隐藏快捷键徽标 */
+.pf-searchbox-input-wrapper:has(.pf-searchbox-clear[data-pf-visible="true"]) .pf-trigger-shortcut {
+    display: none !important;
+}
+
+/* 清除按钮可见时调整输入框右侧内边距 */
+.pf-searchbox-input-wrapper:has(.pf-searchbox-clear[data-pf-visible="true"]) .pf-searchbox-input {
+    padding-inline-end: 36px !important;
+}
+
+/* searchbox 底部键盘提示栏（导航/选择/关闭）：紧凑化，避免继承 header 的 line-height 导致过高 */
+.pf-searchbox-footer {
+    padding: 4px 10px !important;
+    line-height: normal !important;
+}
+.pf-searchbox-footer-hint,
+.pf-searchbox-footer-key {
+    line-height: normal !important;
+}
+
+/* 修复 Pagefind announcer（无障碍公告元素）导致页面多出 1px 滚动条的问题：
+   announcer 容器默认 position:static，其 absolute 子元素（height:1px）会相对于初始包含块定位，延伸到文档底部之下 */
+[data-pagefind-announcer] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+}
+
 button.menu-toggle {
     display: none;
     font-size: 26px;

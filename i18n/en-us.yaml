@@ -101,6 +101,22 @@
   translation: "No results for [SEARCH_TERM]. Try one of the following:"
 - id: search_searching
   translation: "Searching for [SEARCH_TERM]..."
+- id: search_keyboard_navigate
+  translation: "navigate"
+- id: search_keyboard_select
+  translation: "select"
+- id: search_keyboard_clear
+  translation: "clear"
+- id: search_keyboard_close
+  translation: "close"
+- id: search_keyboard_search
+  translation: "search"
+- id: search_results_label
+  translation: "Search results"
+- id: search_error_search
+  translation: "Search failed"
+- id: search_input_hint
+  translation: "Results will appear as you type"
 
 - id: markdown_alert_note
   translation: "Note"

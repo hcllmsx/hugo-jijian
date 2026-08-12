@@ -100,6 +100,22 @@
   translation: "没有找到关于 [SEARCH_TERM] 的结果。请尝试以下搜索之一："
 - id: search_searching
   translation: "正在搜索 [SEARCH_TERM]..."
+- id: search_keyboard_navigate
+  translation: "导航"
+- id: search_keyboard_select
+  translation: "选择"
+- id: search_keyboard_clear
+  translation: "清除"
+- id: search_keyboard_close
+  translation: "关闭"
+- id: search_keyboard_search
+  translation: "搜索"
+- id: search_results_label
+  translation: "搜索结果"
+- id: search_error_search
+  translation: "搜索失败"
+- id: search_input_hint
+  translation: "输入时将显示结果"
 
 - id: markdown_alert_note
   translation: "备注"

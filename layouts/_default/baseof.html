@@ -14,6 +14,10 @@
 
 <head>
     {{- partial "head.html" . }}
+    {{- $searchUI := site.Params.pagefind.searchUI | default "modal" -}}
+    {{- if ne $searchUI "off" -}}
+    <link href="/pagefind/pagefind-component-ui.css" rel="stylesheet">
+    {{- end -}}
 </head>
 
 {{- if (or (ne .Kind `page` ) (eq .Layout `archives`) (eq .Layout `search`)) }}
@@ -21,11 +25,198 @@
 {{- else }}
 <body class="{{ if .IsHome }}home-profile{{ end }}" id="top">
 {{- end }}
+    {{- $searchUI := site.Params.pagefind.searchUI | default "modal" -}}
+    {{- if ne $searchUI "off" -}}
+    <pagefind-config lang="{{ site.Language }}"></pagefind-config>
+    {{- end -}}
     {{ partialCached "header.html" . .Page -}}
     <main class="main">
         {{- block "main" . }}{{ end }}
     </main>
     {{ partialCached "footer.html" . .Layout .Kind (.Param "hideFooter") (print .Params.code) (.Store.Get "loadMedia") -}}
+    {{- $searchUI := site.Params.pagefind.searchUI | default "modal" -}}
+    {{- if ne $searchUI "off" -}}
+    <script src="/pagefind/pagefind-component-ui.js" type="module"></script>
+    {{- if eq $searchUI "modal" -}}
+    <pagefind-modal></pagefind-modal>
+    {{- end -}}
+    <script>
+    // 同步 pagefind 组件的暗黑模式（data-pf-theme）与站点主题（data-theme）
+    (function () {
+        function syncPfTheme() {
+            var html = document.documentElement;
+            var theme = html.dataset.theme;
+            var isDark = theme === 'dark' ||
+                (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (isDark) {
+                html.setAttribute('data-pf-theme', 'dark');
+            } else {
+                html.removeAttribute('data-pf-theme');
+            }
+        }
+        syncPfTheme();
+        new MutationObserver(syncPfTheme).observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
+        });
+    })();
+    </script>
+    {{- if eq $searchUI "modal" -}}
+    <script>
+    // modal 模式：放大镜图标按钮点击打开 pagefind modal，并做 Mac 快捷键提示适配
+    (function () {
+        function setupSearchIconBtn() {
+            var btn = document.getElementById('search-icon-btn');
+            if (!btn) return;
+
+            // Mac 适配：title 中 Ctrl → Cmd
+            if (navigator.platform.toUpperCase().indexOf('MAC') !== -1) {
+                var label = btn.getAttribute('title') || '';
+                btn.setAttribute('title', label.replace('Ctrl', 'Cmd'));
+            }
+
+            btn.addEventListener('click', function () {
+                var trigger = document.querySelector('pagefind-modal-trigger');
+                if (!trigger) return;
+                function tryOpen() {
+                    if (typeof trigger.openModal === 'function') {
+                        trigger.openModal();
+                        return true;
+                    }
+                    return false;
+                }
+                if (!tryOpen() && window.customElements && customElements.whenDefined) {
+                    customElements.whenDefined('pagefind-modal-trigger').then(tryOpen);
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupSearchIconBtn);
+        } else {
+            setupSearchIconBtn();
+        }
+    })();
+    </script>
+    {{- end -}}
+    {{- if eq $searchUI "searchbox" -}}
+    <script>
+    // searchbox 模式增强：失焦有内容不缩回、重新聚焦恢复下拉、清除按钮
+    (function () {
+        function expandSearchbox(trigger) {
+            var menu = document.querySelector('#menu');
+            var trigRect = trigger.getBoundingClientRect();
+            var headerEl = document.querySelector('.header');
+            var headerRect = headerEl ? headerEl.getBoundingClientRect() : { left: 0, top: 0 };
+            var w = 500;
+            if (menu) {
+                var available = menu.getBoundingClientRect().left - trigRect.left;
+                w = Math.min(500, available);
+            }
+            trigger.style.position = 'absolute';
+            trigger.style.margin = '0';
+            trigger.style.left = (trigRect.left - headerRect.left) + 'px';
+            trigger.style.top = (trigRect.top - headerRect.top) + 'px';
+            trigger.style.setProperty('width', w + 'px', 'important');
+            trigger.style.zIndex = '100';
+        }
+
+        function collapseSearchbox(trigger) {
+            trigger.style.position = '';
+            trigger.style.margin = '';
+            trigger.style.left = '';
+            trigger.style.top = '';
+            trigger.style.removeProperty('width');
+            trigger.style.zIndex = '';
+        }
+
+        function isExpanded(trigger) {
+            return trigger.style.position === 'absolute';
+        }
+
+        document.addEventListener('focusin', function (e) {
+            if (e.target.classList && e.target.classList.contains('pf-searchbox-input')) {
+                var trigger = document.querySelector('pagefind-searchbox');
+                if (!trigger) return;
+                if (!isExpanded(trigger)) {
+                    expandSearchbox(trigger);
+                }
+                // 如果输入框有内容，重新触发搜索以恢复下拉框
+                var input = e.target;
+                if (input.value && input.value.trim()) {
+                    setTimeout(function () {
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                    }, 0);
+                }
+            }
+        });
+
+        document.addEventListener('focusout', function (e) {
+            if (e.target.classList && e.target.classList.contains('pf-searchbox-input')) {
+                var trigger = document.querySelector('pagefind-searchbox');
+                if (!trigger) return;
+                var input = e.target;
+                // 有内容时不缩回
+                if (input.value && input.value.trim()) return;
+                collapseSearchbox(trigger);
+            }
+        });
+
+        // 添加清除按钮
+        function addClearButton() {
+            var wrapper = document.querySelector('.pf-searchbox-input-wrapper');
+            if (!wrapper) return false;
+            if (wrapper.querySelector('.pf-searchbox-clear')) return true;
+            var input = wrapper.querySelector('.pf-searchbox-input');
+            if (!input) return false;
+
+            var clearBtn = document.createElement('button');
+            clearBtn.className = 'pf-searchbox-clear';
+            clearBtn.type = 'button';
+            clearBtn.setAttribute('aria-label', '清除搜索');
+            clearBtn.setAttribute('data-pf-visible', 'false');
+            clearBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+
+            // 阻止点击按钮时输入框失焦
+            clearBtn.addEventListener('mousedown', function (e) {
+                e.preventDefault();
+            });
+
+            clearBtn.addEventListener('click', function () {
+                input.value = '';
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                updateClearVisibility();
+            });
+
+            function updateClearVisibility() {
+                if (input.value && input.value.trim()) {
+                    clearBtn.setAttribute('data-pf-visible', 'true');
+                } else {
+                    clearBtn.setAttribute('data-pf-visible', 'false');
+                }
+            }
+
+            input.addEventListener('input', updateClearVisibility);
+            updateClearVisibility();
+            wrapper.appendChild(clearBtn);
+            return true;
+        }
+
+        function tryAddClearButton() {
+            if (!addClearButton()) {
+                setTimeout(tryAddClearButton, 100);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', tryAddClearButton);
+        } else {
+            tryAddClearButton();
+        }
+    })();
+    </script>
+    {{- end -}}
+    {{- end -}}
 </body>
 
 </html>

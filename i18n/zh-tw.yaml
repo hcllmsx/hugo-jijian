@@ -101,6 +101,22 @@
   translation: "沒有找到关于 [SEARCH_TERM] 的結果。請嘗試以下搜尋之一："
 - id: search_searching
   translation: "正在搜尋 [SEARCH_TERM]..."
+- id: search_keyboard_navigate
+  translation: "導航"
+- id: search_keyboard_select
+  translation: "選擇"
+- id: search_keyboard_clear
+  translation: "清除"
+- id: search_keyboard_close
+  translation: "關閉"
+- id: search_keyboard_search
+  translation: "搜尋"
+- id: search_results_label
+  translation: "搜尋結果"
+- id: search_error_search
+  translation: "搜尋失敗"
+- id: search_input_hint
+  translation: "輸入時將顯示結果"
 
 - id: markdown_alert_note
   translation: "備註"

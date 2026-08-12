@@ -55,6 +55,22 @@
                 </button>
                 {{- end }}
                 
+                {{- $searchUI := site.Params.pagefind.searchUI | default "modal" -}}
+                {{- if ne $searchUI "off" -}}
+                {{- if eq $searchUI "searchbox" -}}
+                <pagefind-searchbox class="search-trigger" aria-label="Search" placeholder="{{ T `search_placeholder` | default `Search...` }}"></pagefind-searchbox>
+                {{- else -}}
+                <button type="button" id="search-icon-btn" class="search-trigger search-icon-btn" aria-label="{{ T `search_search_label` | default `Search` }}" title="{{ T `search_search_label` | default `Search` }} (Ctrl + K)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+                <pagefind-modal-trigger class="search-trigger-hidden" aria-label="Search"></pagefind-modal-trigger>
+                {{- end -}}
+                {{- end -}}
+
                 {{- if (not site.Params.disableLangToggle) }}
                     {{- $lang := .Lang}}
                     {{- $separator := or $label_text (not site.Params.disableThemeToggle)}}
