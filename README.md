@@ -25,6 +25,13 @@
 
 ## 更新日志
 
+### 2026-08-12
+- 迁移 Hugo 弃用的模板 API，消除 Hugo v0.158.0 起的构建警告：
+  - `.Language.LanguageDirection` → `.Language.Direction`（`baseof.html`）
+  - `.Language.LanguageCode` → `.Language.Locale`（`rss.xml`、`opengraph.html`）
+- **最低 Hugo 版本要求提升至 `0.158.0`**（原 `0.150.1`）。上述新字段由 Hugo v0.158.0 引入，更低版本会在构建时报错。
+- 站点配置中的 `languageCode` 键已被 Hugo 弃用，请改用 `locale`（例：`locale: zh-cn`）。`极简(hugo-jijian)配置工具`已同步更新。
+
 ### 2026-06-18
 - 为blank页面添加 Pagefind 搜索结果缩略图
 - 修复加密文章中：解密后TOC不显示的问题，以及图片灯箱失效的问题
