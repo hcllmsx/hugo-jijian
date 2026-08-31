@@ -56,9 +56,9 @@
             {{- $processableFormats = $processableFormats | append "webp" -}}
         {{- end -}}
 
-        {{- $imgdl := ($coverImage) | absURL }}
+        {{- $imgdl := ($coverImage) | relURL }}
         {{- if $cover -}}
-            {{- $imgdl = $cover.Permalink }}
+            {{- $imgdl = $cover.RelPermalink }}
         {{- end -}}
 
         {{- if $cover -}}
@@ -66,11 +66,11 @@
                 <img loading="{{$loading}}"
                     srcset='{{- range $size := $sizes -}}
                                 {{- if (ge $cover.Width $size) }}
-                                    {{- printf "%s %s" (($cover.Resize (printf "%sx" $size)).Permalink) (printf "%sw," $size) }}
+                                    {{- printf "%s %s" (($cover.Resize (printf "%sx" $size)).RelPermalink) (printf "%sw," $size) }}
                                 {{- end }}
                             {{- end }}
-                            {{- printf "%s %dw" ($cover.Permalink) ($cover.Width) }}'
-                    src="{{ $cover.Permalink }}"
+                            {{- printf "%s %dw" ($cover.RelPermalink) ($cover.Width) }}'
+                    src="{{ $cover.RelPermalink }}"
                     sizes="(min-width: 1072px) 1072px, 100vw"
                     width="{{ $cover.Width }}" height="{{ $cover.Height }}"
                     data-zoomable="false"
@@ -117,9 +117,9 @@
             {{- $processableFormats = $processableFormats | append "webp" -}}
         {{- end -}}
 
-        {{- $imgdl := ($coverImage) | absURL }}
+        {{- $imgdl := ($coverImage) | relURL }}
         {{- if $cover -}}
-            {{- $imgdl = $cover.Permalink }}
+            {{- $imgdl = $cover.RelPermalink }}
         {{- end -}}
 
         {{- if $cover -}}
@@ -127,11 +127,11 @@
                 <img loading="{{$loading}}"
                     srcset='{{- range $size := $sizes -}}
                                 {{- if (ge $cover.Width $size) }}
-                                    {{- printf "%s %s" (($cover.Resize (printf "%sx" $size)).Permalink) (printf "%sw," $size) }}
+                                    {{- printf "%s %s" (($cover.Resize (printf "%sx" $size)).RelPermalink) (printf "%sw," $size) }}
                                 {{- end }}
                             {{- end }}
-                            {{- printf "%s %dw" ($cover.Permalink) ($cover.Width) }}'
-                    src="{{ $cover.Permalink }}"
+                            {{- printf "%s %dw" ($cover.RelPermalink) ($cover.Width) }}'
+                    src="{{ $cover.RelPermalink }}"
                     sizes="(min-width: 768px) 720px, 100vw"
                     width="{{ $cover.Width }}" height="{{ $cover.Height }}"
                     alt="{{ $alt }}">

@@ -61,7 +61,7 @@
         {{- /* 尝试从当前文章 Page Bundle 中查找 */ -}}
         {{- $pbImg := (.Resources.ByType "image").GetMatch (printf "*%s*" $coverImgName) -}}
         {{- if $pbImg -}}
-          {{- $coverUrl = $pbImg.Permalink -}}
+          {{- $coverUrl = $pbImg.RelPermalink -}}
         {{- else -}}
           {{- $coverUrl = $coverImgName | relURL -}}
         {{- end -}}

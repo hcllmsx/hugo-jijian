@@ -20,9 +20,9 @@
       {{- $pfCoverUrl := "" -}}
       {{- $pfCoverRes := (.Resources.ByType "image").GetMatch (printf "*%s*" $pfCoverImage) -}}
       {{- if $pfCoverRes -}}
-        {{- $pfCoverUrl = $pfCoverRes.Permalink -}}
+        {{- $pfCoverUrl = $pfCoverRes.RelPermalink -}}
       {{- else -}}
-        {{- $pfCoverUrl = ($pfCoverImage | absURL) -}}
+        {{- $pfCoverUrl = ($pfCoverImage | relURL) -}}
       {{- end -}}
       {{- $pfCoverAlt := .Params.cover.alt | default .Title -}}
       <img src="{{ $pfCoverUrl }}" alt="{{ $pfCoverAlt }}" style="display:none" data-pagefind-meta="image[src], image_alt[alt]">
@@ -96,7 +96,7 @@
           {{- end -}}
           {{- /* 尝试获取资源Permalink（如果是本地图片） */ -}}
           {{- $pageBundleImg := (.Resources.ByType "image").GetMatch (printf "*%s*" $rcImg) -}}
-          {{- $finalRcImg := cond (ne $pageBundleImg nil) $pageBundleImg.Permalink ($rcImg | absURL) -}}
+          {{- $finalRcImg := cond (ne $pageBundleImg nil) $pageBundleImg.RelPermalink ($rcImg | relURL) -}}
           <div id="real-cover" style="display:none" data-image="{{ $finalRcImg }}" data-caption="{{ $rcCap }}" data-alt="{{ $rcAlt }}"></div>
         {{- end -}}
         {{- /* 处理 realTopCover */ -}}
@@ -115,7 +115,7 @@
             {{- $rtcCap = .Params.realTopCoverCaption | default "" -}}
           {{- end -}}
           {{- $pageBundleImg := (.Resources.ByType "image").GetMatch (printf "*%s*" $rtcImg) -}}
-          {{- $finalRtcImg := cond (ne $pageBundleImg nil) $pageBundleImg.Permalink ($rtcImg | absURL) -}}
+          {{- $finalRtcImg := cond (ne $pageBundleImg nil) $pageBundleImg.RelPermalink ($rtcImg | relURL) -}}
           <div id="real-top-cover" style="display:none" data-image="{{ $finalRtcImg }}" data-caption="{{ $rtcCap }}" data-alt="{{ $rtcAlt }}"></div>
         {{- end -}}
       {{- end }}

@@ -9,9 +9,9 @@
     {{- $pfCoverUrl := "" -}}
     {{- $pfCoverRes := (.Resources.ByType "image").GetMatch (printf "*%s*" $pfCoverImage) -}}
     {{- if $pfCoverRes -}}
-      {{- $pfCoverUrl = $pfCoverRes.Permalink -}}
+      {{- $pfCoverUrl = $pfCoverRes.RelPermalink -}}
     {{- else -}}
-      {{- $pfCoverUrl = ($pfCoverImage | absURL) -}}
+      {{- $pfCoverUrl = ($pfCoverImage | relURL) -}}
     {{- end -}}
     {{- $pfCoverAlt := .Params.cover.alt | default .Title -}}
     <img src="{{ $pfCoverUrl }}" alt="{{ $pfCoverAlt }}" style="display:none" data-pagefind-meta="image[src], image_alt[alt]">
