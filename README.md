@@ -25,6 +25,16 @@
 
 ## 更新日志
 
+### 2026-08-31
+- **内置 Pagefind 中文搜索修复脚本**（`scripts/pf-prep.cjs`），解决中文搜不到词、只能搜到拼音的问题（pagefind 已知 issue #987：索引端按相邻两字 bigram 切分、查询端按整词切分，两端不一致）。
+- 构建时在 `hugo` 之后、`pagefind` 之前执行一次预处理即可让中文任意子串可搜：
+  ```bash
+  node themes/jijian/scripts/pf-prep.cjs            # public -> _temp/pf-site
+  npx pagefind --site _temp/pf-site --output-path public/pagefind
+  ```
+  查询端已由主题 `baseof.html` 内置的"中文单字查询补丁"配合，无需额外配置。
+- 若未来 pagefind 官方修复 #987（中文按词索引），设置环境变量 `PAGEFIND_ZWSP=0` 可跳过预处理，并把 `pagefind --site` 改回 `public`、移除 `baseof.html` 中的查询补丁即可，本脚本保留不执行也无任何影响。
+
 ### 2026-08-12
 - 迁移 Hugo 弃用的模板 API，消除 Hugo v0.158.0 起的构建警告：
   - `.Language.LanguageDirection` → `.Language.Direction`（`baseof.html`）

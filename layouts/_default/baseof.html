@@ -27,7 +27,7 @@
 {{- end }}
     {{- $searchUI := site.Params.pagefind.searchUI | default "modal" -}}
     {{- if ne $searchUI "off" -}}
-    <pagefind-config lang="{{ site.Language }}"></pagefind-config>
+    <pagefind-config lang="{{ site.Language | replaceRE `-.+` `` }}"></pagefind-config>
     {{- end -}}
     {{ partialCached "header.html" . .Page -}}
     <main class="main">
@@ -37,6 +37,30 @@
     {{- $searchUI := site.Params.pagefind.searchUI | default "modal" -}}
     {{- if ne $searchUI "off" -}}
     <script src="/pagefind/pagefind-component-ui.js" type="module"></script>
+    {{- /* 中文单字查询补丁：把 CJK 查询词切为单字（空格分隔），与 pf-prep.js 生成的单字索引对齐 */ -}}
+    <script type="module">
+        (function () {
+            var patch = function () {
+                if (!window.PagefindComponents || !window.PagefindComponents.getInstanceManager) return false;
+                var inst = window.PagefindComponents.getInstanceManager().getInstance('default');
+                if (!inst || inst.__cjkPatched) return true;
+                inst.__cjkPatched = true;
+                var orig = inst.triggerSearch.bind(inst);
+                inst.triggerSearch = function (term) {
+                    try {
+                        term = String(term == null ? '' : term)
+                            .replace(/([\u3400-\u9fff\uf900-\ufaff])(?=[\u3400-\u9fff\uf900-\ufaff])/g, '$1 ');
+                    } catch (e) { /* ignore */ }
+                    return orig(term);
+                };
+                return true;
+            };
+            if (!patch()) {
+                var timer = setInterval(function () { if (patch()) clearInterval(timer); }, 50);
+                setTimeout(function () { clearInterval(timer); }, 10000);
+            }
+        })();
+    </script>
     {{- if eq $searchUI "modal" -}}
     <pagefind-modal></pagefind-modal>
     {{- end -}}

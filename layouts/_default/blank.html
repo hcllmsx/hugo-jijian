@@ -46,7 +46,8 @@
   </div>
   {{- end }}
 
-  <footer class="post-footer">
+  {{- /* 注意：用 div 而不是 footer —— pagefind 默认忽略 footer/nav 元素，标签词会因此无法进入搜索索引 */ -}}
+  <div class="post-footer">
     {{- $categories := .Language.Params.Taxonomies.category | default "categories" }}
     {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
     <ul class="post-tags">
@@ -54,10 +55,10 @@
       <li><a href="{{ .Permalink }}" class="post-category">{{ .LinkTitle }}</a></li>
       {{- end }}
       {{- range ($.GetTerms $tags) }}
-      <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+      <li><a href="{{ .Permalink }}">{{ .Name }}</a></li>
       {{- end }}
     </ul>
-  </footer>
+  </div>
 
   {{- if .Params.comments }}
   <div id="comments">
