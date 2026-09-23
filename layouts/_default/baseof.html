@@ -33,7 +33,7 @@
     <main class="main">
         {{- block "main" . }}{{ end }}
     </main>
-    {{ partialCached "footer.html" . .Layout .Kind (.Param "hideFooter") (print .Params.code) (.Store.Get "loadMedia") -}}
+    {{ partialCached "footer.html" . .Layout .Kind (.Param "hideFooter") (print .Params.code) (.Store.Get "loadMedia") (.Store.Get "loadPan") -}}
     {{- $searchUI := site.Params.pagefind.searchUI | default "modal" -}}
     {{- if ne $searchUI "off" -}}
     <script src="/pagefind/pagefind-component-ui.js" type="module"></script>

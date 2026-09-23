@@ -1,0 +1,36 @@
+{{- /* pan-item：网盘下载子项
+     在 {{< pan >}} 内使用时渲染为选项卡面板（标签按钮由 pan.js 依据
+     data-provider 动态生成）；独立使用时降级为单卡片
+     参数：url（必填）、pwd/code（提取码）、note（备注）、provider（手动指定网盘名）、name（独立使用时的软件名）
+*/ -}}
+{{- .Page.Store.Set "loadPan" true -}}
+{{- $url := .Get "url" -}}
+{{- if not $url -}}
+  {{- warnf "[pan] missing required param 'url': %s" .Position -}}
+{{- else -}}
+  {{- $pwd := .Get "pwd" | default (.Get "code") | default "" -}}
+  {{- $note := .Get "note" | default "" -}}
+  {{- $provider := .Get "provider" | default "" -}}
+  {{- $name := .Get "name" | default "" -}}
+  {{- $info := partial "pan-info.html" (dict "url" $url "provider" $provider) -}}
+
+  {{- if .Parent -}}
+    <div class="pan-panel" id="pan-p-{{ .Parent.Ordinal }}-{{ .Ordinal }}" data-provider="{{ $info.name }}" hidden>
+      <span class="pan-tab-src" hidden aria-hidden="true">{{ $info.icon }}</span>
+      {{- partial "pan-actions.html" (dict "url" $url "pwd" $pwd "note" $note) -}}
+    </div>
+  {{- else -}}
+    {{- /* 独立使用：渲染为单卡片 */ -}}
+    <div class="pan-card">
+      <span class="pan-icon" aria-hidden="true">{{ $info.icon }}</span>
+      <div class="pan-body">
+        <div class="pan-head">
+          <span class="pan-badge">{{ $info.name }}</span>
+          {{- with $name }}<span class="pan-name">{{ . }}</span>{{ end -}}
+          {{- with $note }}<span class="pan-note">{{ . }}</span>{{ end -}}
+        </div>
+        {{- partial "pan-actions.html" (dict "url" $url "pwd" $pwd "note" "") -}}
+      </div>
+    </div>
+  {{- end -}}
+{{- end -}}

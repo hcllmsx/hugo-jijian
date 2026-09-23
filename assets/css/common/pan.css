@@ -1,0 +1,333 @@
+/* pan 短代码：网盘下载卡片（单卡片 + 多网盘选项卡） */
+
+/* 强调色：亮色模式用蓝色系，暗色模式沿用主题高亮黄 */
+:root {
+  --pan-accent: #0969da;
+}
+
+:root[data-theme="dark"] {
+  --pan-accent: var(--highlight);
+}
+
+.pan-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 1.25rem 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--code-bg);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pan-card:hover {
+  border-color: var(--pan-accent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+/* 多网盘选项卡模式：改为纵向布局 */
+.pan-card--tabs {
+  display: block;
+}
+
+.pan-icon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--highlight);
+  color: var(--highlight-fg);
+  overflow: hidden;
+}
+
+.pan-icon svg,
+.pan-icon img {
+  display: block;
+  width: 26px;
+  height: 26px;
+}
+
+.pan-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pan-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pan-badge {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--tertiary);
+  color: var(--theme);
+  white-space: nowrap;
+}
+
+.pan-name {
+  font-weight: 600;
+  color: var(--primary);
+  overflow-wrap: anywhere;
+}
+
+.pan-note {
+  font-size: 0.8rem;
+  color: var(--secondary);
+}
+
+/* ---------- 操作行：链接 / 提取码 / 备注 ---------- */
+
+.pan-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+
+.pan-side {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  min-width: 0;
+}
+
+.pan-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  color: var(--primary);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+/* 覆盖主题 .post-content a { box-shadow: 0 1px 0 } 的常显下划线
+   需更高特异性（0,2,0 > 0,1,1），否则会被主题规则压过 */
+.pan-link,
+.post-content a.pan-link,
+.post-content .pan-link {
+  box-shadow: none;
+  text-decoration: none;
+}
+
+.post-content a.pan-link:hover,
+.post-content .pan-link:hover,
+.pan-link:hover {
+  color: var(--pan-accent);
+  text-decoration: underline;
+}
+
+.pan-link__label {
+  display: none;
+}
+
+.pan-link__icon {
+  flex: 0 0 auto;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.pan-link__url {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pan-copy {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--secondary);
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.pan-copy:hover {
+  color: var(--primary);
+  background: var(--tertiary);
+}
+
+.pan-copy.is-copied {
+  color: var(--pan-accent);
+}
+
+.pan-pwd {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px dashed var(--secondary);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--secondary);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  font-family: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.pan-pwd:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.pan-pwd code {
+  padding: 0;
+  background: none;
+  font-size: 0.85rem;
+  color: var(--primary);
+}
+
+.pan-pwd.is-copied {
+  border-style: solid;
+  border-color: var(--pan-accent);
+  color: var(--primary);
+}
+
+/* ---------- 选项卡 ---------- */
+
+.pan-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 2px;
+  margin-top: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pan-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px 6px 0 0;
+  background: transparent;
+  color: var(--secondary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.pan-tab svg,
+.pan-tab img {
+  width: 16px;
+  height: 16px;
+}
+
+.pan-tab:hover {
+  color: var(--primary);
+}
+
+.pan-tab.is-active {
+  color: var(--primary);
+}
+
+.pan-tab.is-active::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--pan-accent);
+}
+
+.pan-panels {
+  padding-top: 12px;
+}
+
+.pan-panel[hidden] {
+  display: none;
+}
+
+/* 仅在相邻面板都可见时（无 JS 降级为全部展开）才加间距，
+   避免隐藏面板仍触发相邻选择器导致激活面板上边距不一致 */
+.pan-panels .pan-panel:not([hidden]) + .pan-panel:not([hidden]) {
+  margin-top: 10px;
+}
+
+/* ---------- 无障碍 / 响应式 ---------- */
+
+.pan-link:focus-visible,
+.pan-pwd:focus-visible,
+.pan-tab:focus-visible {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
+}
+
+@media screen and (max-width: 768px) {
+  .pan-card {
+    padding: 12px;
+  }
+
+  .pan-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  /* 手机端不展示长链接，恢复为“下载链接”按钮 */
+  .pan-link {
+    padding: 5px 12px;
+    border-radius: 6px;
+    background: var(--primary);
+    color: var(--theme);
+    font-weight: 600;
+  }
+
+  .pan-link:hover {
+    color: var(--theme);
+    opacity: 0.85;
+    text-decoration: none;
+  }
+
+  .pan-link__url {
+    display: none;
+  }
+
+  .pan-link__label {
+    display: inline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pan-card,
+  .pan-link,
+  .pan-link svg,
+  .pan-pwd,
+  .pan-tab {
+    transition: none;
+  }
+}

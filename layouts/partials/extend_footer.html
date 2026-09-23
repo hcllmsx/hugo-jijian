@@ -179,4 +179,12 @@
 <script src="{{ $media_player_js.RelPermalink }}"></script>
 {{- end -}}
 
+{{- /* 仅在有网盘短代码（pan / pan-item）的页面加载样式与脚本 */ -}}
+{{- if .Store.Get "loadPan" -}}
+{{- $pan_css := resources.Get "css/common/pan.css" | minify | fingerprint -}}
+<link rel="stylesheet" href="{{ $pan_css.RelPermalink }}">
+{{- $pan_js := resources.Get "js/pan.js" | resources.Minify | fingerprint -}}
+<script src="{{ $pan_js.RelPermalink }}"></script>
+{{- end -}}
+
 {{- /* Footer custom content area end */ -}}

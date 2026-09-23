@@ -1,0 +1,90 @@
+{{- /* 网盘短代码公共逻辑：根据 url / provider 参数识别网盘，返回 dict(name/key/icon) */ -}}
+{{- $u := lower (.url | default "") -}}
+{{- $override := .provider | default "" -}}
+
+{{- /* 依据 URL 识别网盘 key */ -}}
+{{- $key := "" -}}
+{{- if strings.Contains $u "pan.baidu.com" -}}{{- $key = "baidu" -}}
+{{- else if or (strings.Contains $u "aliyundrive.com") (strings.Contains $u "alipan.com") -}}{{- $key = "aliyun" -}}
+{{- else if strings.Contains $u "pan.quark.cn" -}}{{- $key = "quark" -}}
+{{- else if or (strings.Contains $u "123pan") (strings.Contains $u "123684") -}}{{- $key = "123pan" -}}
+{{- else if strings.Contains $u "lanzou" -}}{{- $key = "lanzou" -}}
+{{- else if strings.Contains $u "cloud.189.cn" -}}{{- $key = "tianyi" -}}
+{{- else if or (strings.Contains $u "115.com") (strings.Contains $u "115cdn") -}}{{- $key = "115" -}}
+{{- else if strings.Contains $u "guangyapan.com" -}}{{- $key = "guangya" -}}
+{{- else if strings.Contains $u "pan.xunlei.com" -}}{{- $key = "xunlei" -}}
+{{- else if or (strings.Contains $u "mega.nz") (strings.Contains $u "mega.io") -}}{{- $key = "mega" -}}
+{{- else if strings.Contains $u "drive.google.com" -}}{{- $key = "gdrive" -}}
+{{- else if or (strings.Contains $u "onedrive.live.com") (strings.Contains $u "1drv.ms") (strings.Contains $u "sharepoint.com") -}}{{- $key = "onedrive" -}}
+{{- end -}}
+
+{{- /* key → 中文名 */ -}}
+{{- $names := dict
+    "baidu" "百度网盘"
+    "aliyun" "阿里云盘"
+    "quark" "夸克网盘"
+    "123pan" "123云盘"
+    "lanzou" "蓝奏云"
+    "tianyi" "天翼云盘"
+    "115" "115网盘"
+    "guangya" "光鸭云盘"
+    "xunlei" "迅雷云盘"
+    "mega" "MEGA"
+    "gdrive" "Google Drive"
+    "onedrive" "OneDrive" -}}
+{{- $name := "其他网盘" -}}
+{{- if $key -}}{{- $name = index $names $key -}}{{- end -}}
+
+{{- /* 手动指定 provider 时：优先按 key 匹配（与图标文件名一致，如 provider="guangya"）；
+     "other" 归为其他网盘；其余文本按原样显示并使用兜底图标 */ -}}
+{{- if $override -}}
+  {{- $o := lower (strings.TrimSpace $override) -}}
+  {{- if isset $names $o -}}
+    {{- $key = $o -}}
+    {{- $name = index $names $key -}}
+  {{- else if eq $o "other" -}}
+    {{- $key = "" -}}
+    {{- $name = "其他网盘" -}}
+  {{- else -}}
+    {{- /* 兼容中文写法：按包含关系匹配 */ -}}
+    {{- if strings.Contains $o "百度" -}}{{- $key = "baidu" -}}
+    {{- else if strings.Contains $o "阿里" -}}{{- $key = "aliyun" -}}
+    {{- else if strings.Contains $o "夸克" -}}{{- $key = "quark" -}}
+    {{- else if strings.Contains $o "123" -}}{{- $key = "123pan" -}}
+    {{- else if strings.Contains $o "蓝奏" -}}{{- $key = "lanzou" -}}
+    {{- else if strings.Contains $o "天翼" -}}{{- $key = "tianyi" -}}
+    {{- else if strings.Contains $o "115" -}}{{- $key = "115" -}}
+    {{- else if strings.Contains $o "光鸭" -}}{{- $key = "guangya" -}}
+    {{- else if strings.Contains $o "迅雷" -}}{{- $key = "xunlei" -}}
+    {{- else if strings.Contains $o "mega" -}}{{- $key = "mega" -}}
+    {{- else if or (strings.Contains $o "google") (strings.Contains $o "谷歌") -}}{{- $key = "gdrive" -}}
+    {{- else if strings.Contains $o "onedrive" -}}{{- $key = "onedrive" -}}
+    {{- end -}}
+    {{- if $key -}}
+      {{- $name = index $names $key -}}
+    {{- else -}}
+      {{- $name = $override -}}
+      {{- $key = "" -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* 图标：优先 assets/img/pan/<key>.svg，其次 .png，均缺失时用内置云朵兜底 */ -}}
+{{- $cloud := `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/></svg>` -}}
+{{- $icon := $cloud | safeHTML -}}
+{{- if $key -}}
+  {{- $res := resources.Get (printf "img/pan/%s.svg" $key) -}}
+  {{- if not $res -}}{{- $res = resources.Get (printf "img/pan/%s.png" $key) -}}{{- end -}}
+  {{- if $res -}}
+    {{- if eq $res.MediaType.SubType "svg" -}}
+      {{- /* 清理 XML 声明与 DOCTYPE，避免内联时产生非法注释节点 */ -}}
+      {{- $svg := replaceRE `<\?xml[^>]*\?>` "" $res.Content -}}
+      {{- $svg = replaceRE `<!DOCTYPE[^>]*>` "" $svg -}}
+      {{- $icon = $svg | safeHTML -}}
+    {{- else -}}
+      {{- $icon = printf `<img src="%s" alt="" width="26" height="26" loading="lazy">` $res.RelPermalink | safeHTML -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- return dict "name" $name "key" $key "icon" $icon -}}
