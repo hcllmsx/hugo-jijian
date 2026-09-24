@@ -1,4 +1,4 @@
-/* pan 短代码：网盘下载卡片（单卡片 + 多网盘选项卡） */
+/* pan 短代码：网盘下载卡片（选项卡形式） */
 
 /* 强调色：亮色模式用蓝色系，暗色模式沿用主题高亮黄 */
 :root {
@@ -31,51 +31,12 @@
   display: block;
 }
 
-.pan-icon {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  background: var(--highlight);
-  color: var(--highlight-fg);
-  overflow: hidden;
-}
-
-.pan-icon svg,
-.pan-icon img {
-  display: block;
-  width: 26px;
-  height: 26px;
-}
-
-.pan-body {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .pan-head {
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
   gap: 8px;
   min-width: 0;
-}
-
-.pan-badge {
-  flex: 0 0 auto;
-  padding: 2px 8px;
-  border-radius: 5px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: var(--tertiary);
-  color: var(--theme);
-  white-space: nowrap;
 }
 
 .pan-name {
@@ -291,11 +252,6 @@
 @media screen and (max-width: 768px) {
   .pan-card {
     padding: 12px;
-  }
-
-  .pan-icon {
-    width: 38px;
-    height: 38px;
   }
 
   /* 手机端不展示长链接，恢复为“下载链接”按钮 */

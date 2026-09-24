@@ -20,17 +20,22 @@
       {{- partial "pan-actions.html" (dict "url" $url "pwd" $pwd "note" $note) -}}
     </div>
   {{- else -}}
-    {{- /* 独立使用：渲染为单卡片 */ -}}
-    <div class="pan-card">
-      <span class="pan-icon" aria-hidden="true">{{ $info.icon }}</span>
-      <div class="pan-body">
-        <div class="pan-head">
-          <span class="pan-badge">{{ $info.name }}</span>
-          {{- with $name }}<span class="pan-name">{{ . }}</span>{{ end -}}
-          {{- with $note }}<span class="pan-note">{{ . }}</span>{{ end -}}
+    {{- /* 独立使用：同样渲染为选项卡样式（只有一个标签） */ -}}
+    {{- $idx := .Page.Store.Get "panSingleIdx" | default 0 -}}
+    {{- .Page.Store.Set "panSingleIdx" (add $idx 1) -}}
+    <div class="pan-card pan-card--tabs">
+      {{- with $name }}<div class="pan-head"><span class="pan-name">{{ . }}</span></div>{{ end -}}
+      <div class="pan-tabs" role="tablist" aria-label="网盘下载"></div>
+      <div class="pan-panels">
+        <div class="pan-panel" id="pan-s-{{ $idx }}" data-provider="{{ $info.name }}" hidden>
+          <span class="pan-tab-src" hidden aria-hidden="true">{{ $info.icon }}</span>
+          {{- partial "pan-actions.html" (dict "url" $url "pwd" $pwd "note" $note) -}}
         </div>
-        {{- partial "pan-actions.html" (dict "url" $url "pwd" $pwd "note" "") -}}
       </div>
     </div>
+    {{- if not (.Page.Store.Get "panNoscript") -}}
+      {{- .Page.Store.Set "panNoscript" true -}}
+      <noscript><style>.pan-panel[hidden]{display:block !important}</style></noscript>
+    {{- end -}}
   {{- end -}}
 {{- end -}}
