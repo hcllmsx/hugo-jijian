@@ -160,6 +160,25 @@ button.menu-toggle {
     padding: 0;
 }
 
+/* 汉堡按钮线条动画：菜单展开时三条线形变为关闭图标 */
+button.menu-toggle svg line {
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+button.menu-toggle.active svg line:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+}
+
+button.menu-toggle.active svg line:nth-child(2) {
+    opacity: 0;
+}
+
+button.menu-toggle.active svg line:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+}
+
 [data-theme="dark"] #moon {
     display: none;
 }

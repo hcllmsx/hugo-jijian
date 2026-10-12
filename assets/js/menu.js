@@ -16,6 +16,7 @@
             // 关闭菜单
             menu.classList.remove('active');
             menuOverlay.classList.remove('active');
+            menuToggle.classList.remove('active');
             menuToggle.setAttribute('aria-expanded', 'false');
             // 恢复滚动
             document.body.style.overflow = '';
@@ -23,6 +24,7 @@
             // 打开菜单
             menu.classList.add('active');
             menuOverlay.classList.add('active');
+            menuToggle.classList.add('active');
             menuToggle.setAttribute('aria-expanded', 'true');
             // 禁止滚动
             document.body.style.overflow = 'hidden';
@@ -33,6 +35,7 @@
     function closeMenu() {
         menu.classList.remove('active');
         menuOverlay.classList.remove('active');
+        menuToggle.classList.remove('active');
         menuToggle.setAttribute('aria-expanded', 'false');
         // 恢复滚动
         document.body.style.overflow = '';
