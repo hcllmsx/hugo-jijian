@@ -1,3 +1,21 @@
+{{- /* 把页面资源解析成站点绝对路径（/posts/xxx/图片名），避免使用相对路径；
+       某些静态托管（如 EdgeOne Pages）访问 /posts/xxx（无尾斜杠）时不会 301 到 /posts/xxx/，
+       相对路径会被解析到错误的目录导致图片 404。 */ -}}
+{{- $raw := .Get "src" -}}
+{{- $u := urls.Parse $raw -}}
+{{- $src := $u.String -}}
+{{- if not $u.IsAbs -}}
+    {{- $path := strings.TrimPrefix "./" $u.Path -}}
+    {{- with or (.Page.Resources.Get $path) (resources.Get $path) -}}
+        {{- $src = .RelPermalink -}}
+        {{- with $u.RawQuery -}}
+            {{- $src = printf "%s?%s" $src . -}}
+        {{- end -}}
+        {{- with $u.Fragment -}}
+            {{- $src = printf "%s#%s" $src . -}}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
 <figure{{ if or (.Get "class") (eq (.Get "align") "center") }} class="
            {{- if eq (.Get "align") "center" }}align-center {{ end }}
            {{- with .Get "class" }}{{ . }}{{- end }}"
@@ -5,7 +23,7 @@
     {{- if .Get "link" -}}
         <a href="{{ .Get "link" }}"{{ with .Get "target" }} target="{{ . }}"{{ end }}{{ with .Get "rel" }} rel="{{ . }}"{{ end }}>
     {{- end }}
-    <img loading="lazy" src="{{ .Get "src" }}{{- if eq (.Get "align") "center" }}#center{{- end }}"
+    <img loading="lazy" src="{{ $src }}{{- if eq (.Get "align") "center" }}#center{{- end }}"
          {{- if or (.Get "alt") (.Get "caption") }}
          alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "caption" | markdownify| plainify }}{{ end }}"
          {{- end -}}
